@@ -65,7 +65,7 @@ def t_READINGVALUE_RBRACKET(t):
     r'\]'
     global stack
     if stack.pop() == '[':
-        if not stack:
+        if not stack:  # a lista terminou de ser lida, ou seja, deixamos de ler valores pelo que retornamos ao estado INITIAL
             t.lexer.begin('INITIAL')
         return t
     else:
