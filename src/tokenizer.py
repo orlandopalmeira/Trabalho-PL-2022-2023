@@ -2,29 +2,25 @@ import ply.lex as lex
 
 # tokens
 tokens = (
-    'LBRACE',#
-    'RBRACE',#
-    'LBRACKET',#
-    'RBRACKET',#
-    'COMMA',#
-    'EQUALS',#
-    'STRING',#
-    'INTEGER',#
-    'DOT',#
-    'FLOAT',#
-    'BOOLEAN',#
-    'DATE',#
-    'TIME',#
-    'DATETIME',#
-    'FIELD',#
-    'KEY', #
-    'OBJECT',#
-    'COMMENT'#
+    'LBRACE',
+    'RBRACE',
+    'LBRACKET',
+    'RBRACKET',
+    'COMMA',
+    'EQUALS',
+    'STRING',
+    'INTEGER',
+    'DOT',
+    'FLOAT',
+    'BOOLEAN',
+    'DATE',
+    'TIME',
+    'DATETIME',
+    'FIELD',
+    'KEY', 
+    'OBJECT',
+    'COMMENT'
 )
-
-# Expressões regulares para cada token
-# t_LBRACE = r'\{'
-# t_RBRACE = r'\}'
 
 t_ANY_COMMA = r'\,'
 t_DOT = r'\.'
