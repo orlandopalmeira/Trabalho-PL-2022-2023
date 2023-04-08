@@ -115,6 +115,7 @@ def t_READINGVALUE_TIME(t):
         t.lexer.begin('INITIAL')
     return t
 
+t_STRING = r'\"[^"]*\"|\'[^\']*\''
 def t_READINGVALUE_STRING(t):
     r'\"[^"]*\"|\'[^\']*\''
     global stack
@@ -124,14 +125,14 @@ def t_READINGVALUE_STRING(t):
 
 
 def t_READINGVALUE_FLOAT(t):
-    r'\d+\.\d+'
+    r'(\+|\-)?\d+\.\d+'
     global stack
     if not stack: # só pode voltar ao estado inicial se estiver garantido que este float não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
         t.lexer.begin('INITIAL')
     return t
 
 def t_READINGVALUE_INTEGER(t):
-    r'\d+'
+    r'(\+|\-)?\d+'
     global stack
     if not stack: # só pode voltar ao estado inicial se estiver garantido que este integer não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
         t.lexer.begin('INITIAL')
@@ -163,7 +164,49 @@ temp_targets = { cpu = 79.5, case = 72.0 }
 ip = "10.0.0.2"
 role = "backend"
 '''
-lexer.input(data)
+
+data2 = '''
+name = "Orange"
+physical.color = "orange"
+physical.shape = "round"
+site."google.com" = true
+'''
+
+data3 = '''
+fruit.name = "banana"     # this is best practice
+fruit. color = "yellow"    # same as fruit.color
+fruit . flavor = "banana"   # same as fruit.flavor
+'''
+
+data4 = '''
+spelling = "favorite"
+"spelling" = "favourite"
+'''
+
+data5 = '''
+# This makes the key "fruit" into a table.
+fruit.apple.smooth = true
+
+# So then you can add to the table "fruit" like so:
+fruit.orange = 2
+'''
+
+data6 = '''
+# array de objectos
+[[products]]
+name = "Hammer"
+sku = 738594937
+
+[[products]]  # empty table within the array
+
+[[products]]
+name = "Nail"
+sku = 284758393
+
+color = "gray"
+'''
+
+lexer.input(data6)
 
 for tok in lexer:
     print(tok)
