@@ -69,7 +69,7 @@ def t_READINGVALUE_RBRACKET(t):
             t.lexer.begin('INITIAL')
         return t
     else:
-        raise SyntaxError(f"Error closing list: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with this list")
+        raise SyntaxError(f"Error closing list: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with the current structure.")
 
 def t_READINGVALUE_LBRACE(t):
     r'\{'
@@ -85,7 +85,7 @@ def t_READINGVALUE_RBRACE(t):
             t.lexer.begin('INITIAL')
         return t
     else:
-        raise SyntaxError(f"Error closing dictionary: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with this dictionary")
+        raise SyntaxError(f"Error closing dictionary: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with the current structure.")
 
 def t_READINGVALUE_BOOLEAN(t):
     r'\btrue\b|\bfalse\b'
@@ -150,7 +150,7 @@ dob = 1979-05-27T07:32:00-08:00
 [database]
 enabled = true
 ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], [3.14] ]
+data = [ ["delta", "phi"], [3.14} ]
 temp_targets = { cpu = 79.5, case = 72.0 }
 
 [servers]
