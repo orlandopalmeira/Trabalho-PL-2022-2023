@@ -30,8 +30,9 @@ states = [('RVALUE','exclusive'),
 # INITIAL
 def t_KEY(t):
     r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RVALUE')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RVALUE')
+    t.lexer.push_state('RVALUE')
     return t
 
 def t_DOT(t):
@@ -40,8 +41,9 @@ def t_DOT(t):
 
 def t_OPENPR(t):
     r'\['
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RTABLE')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RTABLE')
+    t.lexer.push_state('RTABLE')
     return t
 
 def t_CLOSEPR(t):
@@ -52,8 +54,9 @@ def t_CLOSEPR(t):
 # RTABLE
 def t_RTABLE_OPENPR(t):
     r'\['
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RTABLE')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RTABLE')
+    t.lexer.push_state('RTABLE')
     return t
 
 def t_RTABLE_TABLE(t):
@@ -127,8 +130,9 @@ def t_RVALUE_BOOL(t):
 
 def t_RVALUE_OPENPR(t):
     r'\['
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RARRAY')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.push_state('RARRAY')
     return t
 
 def t_RVALUE_CLOSEPR(t):
@@ -138,8 +142,9 @@ def t_RVALUE_CLOSEPR(t):
 
 def t_RVALUE_OPENCHV(t):
     r'\{'
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RDICT')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.push_state('RDICT')
     return t
 
 def t_RVALUE_CLOSECHV(t):
@@ -186,8 +191,9 @@ def t_RARRAY_COMMA(t):
 
 def t_RARRAY_OPENPR(t):
     r'\['
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RARRAY')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.push_state('RARRAY')
     return t
 
 def t_RARRAY_CLOSEPR(t):
@@ -197,8 +203,9 @@ def t_RARRAY_CLOSEPR(t):
 
 def t_RARRAY_OPENCHV(t):
     r'\{'
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RDICT')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.push_state('RDICT')
     return t
 
 def t_RARRAY_CLOSECHV(t):
@@ -209,8 +216,9 @@ def t_RARRAY_CLOSECHV(t):
 # RDICT
 def t_RDICT_KEY(t):
     r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RVALUE')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RVALUE')
+    t.lexer.push_state('RVALUE')
     return t
 
 def t_RDICT_EQUAL(t):
@@ -255,8 +263,9 @@ def t_RDICT_COMMA(t):
 
 def t_RDICT_OPENPR(t):
     r'\['
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RARRAY')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.push_state('RARRAY')
     return t
 
 def t_RDICT_CLOSEPR(t):
@@ -266,8 +275,9 @@ def t_RDICT_CLOSEPR(t):
 
 def t_RDICT_OPENCHV(t):
     r'\{'
-    t.lexer.push_state(t.lexer.lexstate)
-    t.lexer.begin('RDICT')
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.push_state('RDICT')
     return t
 
 def t_RDICT_CLOSECHV(t):
@@ -292,7 +302,7 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('examples/data1.toml') as f:
+with open('examples/data8.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:

@@ -1,0 +1,3 @@
+[teste3]
+dicionario = {'chave1' = 1, 'chave2' = false, 'chave3' = -123.5, 'chave4' = "Orlando"}
+teste = ["lalalalal", [1,2,3], false, {'chave1' = 1, 'chave2' = 'Orlando'}]
