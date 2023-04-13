@@ -81,6 +81,26 @@ def t_RVALUE_newline(t):
     t.lexer.lineno += 1
     t.lexer.pop_state()
 
+def t_RVALUE_OFFSETDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALDATE(t):
+    r'\d{4}\-\d{2}\-\d{2}'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALTIME(t):
+    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.lexer.pop_state()
+    return t
+
 def t_RVALUE_EQUAL(t):
     r'='
     return t
@@ -102,26 +122,6 @@ def t_RVALUE_INTEGER(t):
 
 def t_RVALUE_BOOL(t):
     r'\b(true|false)\b'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_LOCALDATE(t):
-    r'\d{4}\-\d{2}\-\d{2}'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_LOCALTIME(t):
-    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
     t.lexer.pop_state()
     return t
 
@@ -148,22 +148,6 @@ def t_RVALUE_CLOSECHV(t):
     return t
 
 # RARRAY
-def t_RARRAY_STRING(t):
-    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
-    return t
-
-def t_RARRAY_FLOAT(t):
-    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    return t
-
-def t_RARRAY_INTEGER(t):
-    r'(\+|\-)?\d+'
-    return t
-
-def t_RARRAY_BOOL(t):
-    r'\b(true|false)\b'
-    return t
-
 def t_RARRAY_OFFSETDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
     return t
@@ -178,6 +162,22 @@ def t_RARRAY_LOCALDATE(t):
 
 def t_RARRAY_LOCALTIME(t):
     r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RARRAY_STRING(t):
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    return t
+
+def t_RARRAY_FLOAT(t):
+    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    return t
+
+def t_RARRAY_INTEGER(t):
+    r'(\+|\-)?\d+'
+    return t
+
+def t_RARRAY_BOOL(t):
+    r'\b(true|false)\b'
     return t
 
 def t_RARRAY_COMMA(t):
@@ -221,18 +221,6 @@ def t_RDICT_STRING(t):
     r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
     return t
 
-def t_RDICT_FLOAT(t):
-    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    return t
-
-def t_RDICT_INTEGER(t):
-    r'(\+|\-)?\d+'
-    return t
-
-def t_RDICT_BOOL(t):
-    r'\b(true|false)\b'
-    return t
-
 def t_RDICT_OFFSETDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
     return t
@@ -247,6 +235,18 @@ def t_RDICT_LOCALDATE(t):
 
 def t_RDICT_LOCALTIME(t):
     r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RDICT_FLOAT(t):
+    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    return t
+
+def t_RDICT_INTEGER(t):
+    r'(\+|\-)?\d+'
+    return t
+
+def t_RDICT_BOOL(t):
+    r'\b(true|false)\b'
     return t
 
 def t_RDICT_COMMA(t):
@@ -292,7 +292,7 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('test.toml') as f:
+with open('examples/data1.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:
