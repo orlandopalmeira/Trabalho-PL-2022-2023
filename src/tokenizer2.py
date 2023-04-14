@@ -132,6 +132,7 @@ def t_RVALUE_OPENPR(t):
     r'\['
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RARRAY')
+    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
     t.lexer.push_state('RARRAY')
     return t
 
@@ -144,6 +145,7 @@ def t_RVALUE_OPENCHV(t):
     r'\{'
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RDICT')
+    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
     t.lexer.push_state('RDICT')
     return t
 
@@ -302,8 +304,8 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('examples/data8.toml') as f:
+with open('examples/data1.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:
-    print(token)
+    print(f'{token}: {lexer.current_state()}')

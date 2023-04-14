@@ -10,7 +10,7 @@ dob = 1979-05-27T07:32:00-08:00
 enabled = true
 ports = [ 8000, 8001, 8002 ]
 data = [ ["delta", "phi"], [3.14] ]
-temp_targets = { cpu = 79.5, case = 72.0 }
+temp_targets = { cpu = 79.5, case = 72.0,  dict= {test1= 45, 'test2'= false, "test3"= "true", test4 = [ ["delta", "phi"], [3.14], {test1= 45, 'test2'= false, lista = [1], valor = 34, dicio = {x = 1, lista = [1,2,3,4,5,true,false]}} ]}}
 
 [servers]
 
