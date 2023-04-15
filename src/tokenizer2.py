@@ -308,8 +308,8 @@ def t_ANY_COMMENT(t):
     # return t
 
 def t_ANY_newline(t):
-    r'\n'
-    t.lexer.lineno += 1
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
 
 lexer = lex.lex()
