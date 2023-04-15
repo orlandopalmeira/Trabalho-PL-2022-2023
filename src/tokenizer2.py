@@ -1,6 +1,10 @@
 import ply.lex as lex
 import re
 
+def remove_quotes(string):
+    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
+    return res
+
 tokens = [
     'COMMENT'
     'KEY',
@@ -111,7 +115,7 @@ def t_RVALUE_EQUAL(t):
 
 def t_RVALUE_STRING(t):
     r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
-    t.value = re.sub(r'^("""|\'\'\'|"|\')(.*)\1$', r'\2', t.value)
+    t.value = remove_quotes(t.value)
     t.lexer.pop_state()
     return t
 
@@ -175,7 +179,7 @@ def t_RARRAY_LOCALTIME(t):
 
 def t_RARRAY_STRING(t):
     r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
-    t.value = re.sub(r'^("""|\'\'\'|"|\')(.*)\1$', r'\2', t.value)
+    t.value = remove_quotes(t.value)
     return t
 
 def t_RARRAY_FLOAT(t):
@@ -232,7 +236,7 @@ def t_RDICT_EQUAL(t):
 
 def t_RDICT_STRING(t):
     r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
-    t.value = re.sub(r'^("""|\'\'\'|"|\')(.*)\1$', r'\2', t.value)
+    t.value = remove_quotes(t.value)
     return t
 
 def t_RDICT_OFFSETDATETIME(t):
