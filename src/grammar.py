@@ -224,5 +224,5 @@ parser = yacc.yacc(debug=True)
 parser.success = True
 parser.custo = 0.0
 
-with open('data1.toml') as f:
+with open('examples/data1.toml') as f:
     parser.parse(f.read())

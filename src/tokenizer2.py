@@ -72,6 +72,7 @@ def t_RTABLE_OPENPR(t):
 
 def t_RTABLE_TABLE(t):
     r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
+    t.value = remove_quotes(t.value)
     return t
 
 def t_RTABLE_DOT(t):
