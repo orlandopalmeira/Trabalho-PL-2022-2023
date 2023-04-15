@@ -1,0 +1,12 @@
+title = "ImpalaPay Co."
+
+titlemulti = """
+Roses are red
+Violets are blue"""
+
+titlesq = 'ImpalaPay Co.'
+
+titlemultisq = '''
+Roses are red
+Violets are blue
+'''

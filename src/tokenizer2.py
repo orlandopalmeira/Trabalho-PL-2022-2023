@@ -37,6 +37,7 @@ def t_KEY(t):
     r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
+    t.value = remove_quotes(t.value)
     t.lexer.push_state('RVALUE')
     return t
 
@@ -227,6 +228,7 @@ def t_RDICT_KEY(t):
     r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
+    t.value = remove_quotes(t.value)
     t.lexer.push_state('RVALUE')
     return t
 
@@ -312,7 +314,7 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('examples/data1.toml') as f:
+with open('examples/data4.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:
