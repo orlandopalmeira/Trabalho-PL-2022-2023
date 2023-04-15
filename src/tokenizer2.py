@@ -5,10 +5,15 @@ def remove_quotes(string):
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
     return res
 
+def parse_bool(string):
+    if string == "true":
+        return True
+    else:
+        return False
+
 tokens = [
     'COMMENT',
     'KEY',
-    # 'VALUE',
     'STRING',
     'INT',
     'FLOAT',
@@ -122,16 +127,19 @@ def t_RVALUE_STRING(t):
 
 def t_RVALUE_FLOAT(t):
     r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_INT(t):
     r'(\+|\-)?\d+'
+    t.value = int(t.value)
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_BOOL(t):
     r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
     t.lexer.pop_state()
     return t
 
@@ -185,14 +193,17 @@ def t_RARRAY_STRING(t):
 
 def t_RARRAY_FLOAT(t):
     r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
     return t
 
 def t_RARRAY_INT(t):
     r'(\+|\-)?\d+'
+    t.value = int(t.value)
     return t
 
 def t_RARRAY_BOOL(t):
     r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
     return t
 
 def t_RARRAY_COMMA(t):
@@ -259,14 +270,17 @@ def t_RDICT_LOCALTIME(t):
 
 def t_RDICT_FLOAT(t):
     r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
     return t
 
 def t_RDICT_INT(t):
     r'(\+|\-)?\d+'
+    t.value = int(t.value)
     return t
 
 def t_RDICT_BOOL(t):
     r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
     return t
 
 def t_RDICT_COMMA(t):
