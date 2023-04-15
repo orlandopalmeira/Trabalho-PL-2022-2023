@@ -6,7 +6,7 @@ def remove_quotes(string):
     return res
 
 tokens = [
-    'COMMENT'
+    'COMMENT',
     'KEY',
     # 'VALUE',
     'STRING',
