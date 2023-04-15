@@ -71,7 +71,7 @@ def t_RTABLE_OPENPR(t):
     return t
 
 def t_RTABLE_TABLE(t):
-    r'[\w\-]+|\"[\w\- ]+\"|\'[\w\- ]+\''
+    r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
     return t
 
 def t_RTABLE_DOT(t):
@@ -328,8 +328,8 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('examples/data1.toml') as f:
-    lexer.input(f.read())
+# with open('examples/data1.toml') as f:
+#     lexer.input(f.read())
 
-for token in lexer:
-    print(f'{token}: {lexer.current_state()}')
+# for token in lexer:
+#     print(f'{token}: {lexer.current_state()}')
