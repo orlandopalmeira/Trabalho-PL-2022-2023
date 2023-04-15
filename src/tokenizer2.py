@@ -61,7 +61,7 @@ def t_RTABLE_OPENPR(t):
     return t
 
 def t_RTABLE_TABLE(t):
-    r'[\w\-]+|\"[\w\-]+\"|\'[\w\-]+\''
+    r'[\w\-]+|\"[\w\- ]+\"|\'[\w\- ]+\''
     return t
 
 def t_RTABLE_DOT(t):
