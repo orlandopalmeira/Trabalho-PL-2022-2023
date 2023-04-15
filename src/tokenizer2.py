@@ -10,7 +10,7 @@ tokens = [
     'KEY',
     # 'VALUE',
     'STRING',
-    'INTEGER',
+    'INT',
     'FLOAT',
     'BOOL',
     'OFFSETDATETIME',
@@ -125,7 +125,7 @@ def t_RVALUE_FLOAT(t):
     t.lexer.pop_state()
     return t
 
-def t_RVALUE_INTEGER(t):
+def t_RVALUE_INT(t):
     r'(\+|\-)?\d+'
     t.lexer.pop_state()
     return t
@@ -187,7 +187,7 @@ def t_RARRAY_FLOAT(t):
     r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
     return t
 
-def t_RARRAY_INTEGER(t):
+def t_RARRAY_INT(t):
     r'(\+|\-)?\d+'
     return t
 
@@ -261,7 +261,7 @@ def t_RDICT_FLOAT(t):
     r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
     return t
 
-def t_RDICT_INTEGER(t):
+def t_RDICT_INT(t):
     r'(\+|\-)?\d+'
     return t
 
@@ -314,7 +314,7 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('examples/data4.toml') as f:
+with open('examples/data1.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:
