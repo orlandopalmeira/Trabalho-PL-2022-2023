@@ -6,10 +6,7 @@ def remove_quotes(string):
     return res
 
 def parse_bool(string):
-    if string == "true":
-        return True
-    else:
-        return False
+    return True if string == 'true' else False
     
 def find_column(token):
     text = token.lexer.lexdata
@@ -41,7 +38,8 @@ tokens = [
     'CLOSECHV',
     'DOT',
     'EQUAL',
-    'COMMA'
+    'COMMA',
+    'NEWLINE'
 ]
 
 states = [('RVALUE','exclusive'),
@@ -50,6 +48,11 @@ states = [('RVALUE','exclusive'),
           ('RDICT' ,'exclusive')]
 
 # INITIAL
+def t_NEWLINE(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+    return t
+
 def t_KEY(t):
     r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
     # t.lexer.push_state(t.lexer.lexstate)
@@ -103,18 +106,13 @@ def t_RVALUE_DOT(t):
     t.lexer.pop_state()
     return t
 
-def t_RVALUE_newline(t):
-    r'\n'
-    t.lexer.lineno += 1
-    t.lexer.pop_state()
-
 def t_RVALUE_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}Z'
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
     t.lexer.pop_state()
     return t
 
@@ -256,46 +254,6 @@ def t_RDICT_KEY(t):
     t.lexer.push_state('RVALUE')
     return t
 
-def t_RDICT_EQUAL(t):
-    r'='
-    return t
-
-def t_RDICT_STRING(t):
-    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
-    t.value = remove_quotes(t.value)
-    return t
-
-def t_RDICT_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
-    return t
-
-def t_RDICT_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    return t
-
-def t_RDICT_LOCALDATE(t):
-    r'\d{4}\-\d{2}\-\d{2}'
-    return t
-
-def t_RDICT_LOCALTIME(t):
-    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    return t
-
-def t_RDICT_FLOAT(t):
-    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    t.value = float(t.value)
-    return t
-
-def t_RDICT_INT(t):
-    r'(\+|\-)?\d+'
-    t.value = int(t.value)
-    return t
-
-def t_RDICT_BOOL(t):
-    r'\b(true|false)\b'
-    t.value = parse_bool(t.value)
-    return t
-
 def t_RDICT_COMMA(t):
     r'\,'
     return t
@@ -337,8 +295,8 @@ def t_ANY_error(t):
     exit(1)
 
 def t_ANY_COMMENT(t):
-    r'\#.*'
-    # return t
+    r'\#.*\n'
+    t.lexer.lineno += 1
 
 def t_ANY_newline(t):
     r'\n+'
@@ -347,8 +305,8 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-# with open('examples/data1.toml') as f:
-#     lexer.input(f.read())
+with open('/home/orlando/Desktop/Trabalho-PL-2022-2023/tests/valid/array/string-quote-comma-2.toml') as f:
+    lexer.input(f.read())
 
-# for token in lexer:
-#     print(f'{token}: {lexer.current_state()}')
+for token in lexer:
+    print(f'{token}: {lexer.current_state()}')

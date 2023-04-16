@@ -96,13 +96,16 @@ def getline(token) -> str:
     lines = text.split('\n')
     return lines[i-1]
 
-
+def p_0(p):
+    'file : NEWLINE toml'
+    p.parser.result = p[2]
 
 def p_1(p):
     'file : toml'
-    with open(out_file,'w') as wf:
-        json.dump(p[1], wf, indent=2, ensure_ascii=False)
-    print(f"\nResultado escrito no ficheiro {out_file}.")
+    # with open(out_file,'w') as wf:
+    #     json.dump(p[1], wf, indent=2, ensure_ascii=False)
+    # print(f"\nResultado escrito no ficheiro {out_file}.")
+    p.parser.result = p[1]
 
 def p_2(p):
     'toml : kvaluepairs tables'
@@ -111,8 +114,8 @@ def p_2(p):
     p[0] = merge_dictionaries([p[1], p[2]])
 
 def p_3(p):
-    'kvaluepairs : kvaluepair kvaluepairs'
-    p[0] = merge_dictionaries([p[1], p[2]])
+    'kvaluepairs : kvaluepair NEWLINE kvaluepairs'
+    p[0] = merge_dictionaries([p[1], p[3]])
 
 def p_4(p):
     'kvaluepairs : '
@@ -151,13 +154,13 @@ def p_10(p):
     p[0] = dict()
 
 def p_11(p):
-    'normaltable : OPENPR tablename CLOSEPR kvaluepairs'
-    p[0] = calcObject(p[2],p[4])
+    'normaltable : OPENPR tablename CLOSEPR NEWLINE kvaluepairs'
+    p[0] = calcObject(p[2],p[5])
     pass
 
 def p_12(p):
-    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR kvaluepairs'
-    p[0] = calcObjectArrayTable(p[3],p[6])
+    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR NEWLINE kvaluepairs'
+    p[0] = calcObjectArrayTable(p[3],p[7])
 
 def p_13(p):
     'tablename : TABLE DOT tablename'
@@ -261,19 +264,3 @@ def p_error(p):
 
 parser = yacc.yacc(debug=True)
 parser.success = True
-
-### Main
-# python3 grammar.py (<ficheiro_input>) (<ficheiro_output>)
-in_file = "examples/invalid/float/exp-double-us.toml"
-out_file = "result.json"
-if len(sys.argv) > 2:
-    out_file = sys.argv[2] 
-if len(sys.argv) > 1:
-    in_file = sys.argv[1]
-
-print(f"Ficheiro de input: {in_file}.")
-print(f"Ficheiro de output: {out_file}.")
-print("\nA analisar..")
-
-with open(in_file) as rf:
-    parser.parse(rf.read())
