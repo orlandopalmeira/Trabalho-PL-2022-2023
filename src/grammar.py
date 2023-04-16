@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from tokenizer2 import tokens
+from tokenizer import tokens
 import json
 
 #! Evita o warning "WARNING: Token 'COMMENT' defined, but not used" 
@@ -76,6 +76,8 @@ def merge_dictionaries(dictionaries_list):
         for key, value in dictionary.items():
             if isinstance(value, dict) and key in result:
                 result[key] = merge_dictionaries([result[key], value])
+            elif isinstance(value, list) and key in result:
+                result[key] += value
             else:
                 result[key] = value
     return result
@@ -121,12 +123,13 @@ def p_8(p):
 
 def p_9(p):
     'tables : arraytable tables'
-    (tableName,tableContent) = p[1].popitem()
-    if tableName in p[2]:
-        p[2][tableName].append(tableContent)
-    else:
-        p[2][tableName] = [tableContent]
-    p[0] = p[2]
+    # (tableName,tableContent) = p[1].popitem()
+    # if tableName in p[2]:
+    #     p[2][tableName].append(tableContent)
+    # else:
+    #     p[2][tableName] = [tableContent]
+    # p[0] = p[2]
+    p[0] = merge_dictionaries([p[1],p[2]])
 
 def p_10(p):
     'tables : '
@@ -230,5 +233,5 @@ parser = yacc.yacc(debug=True)
 parser.success = True
 parser.custo = 0.0
 
-with open('examples/arraytables.toml') as f:
+with open('src/examples/arraytables.toml') as f:
     parser.parse(f.read())

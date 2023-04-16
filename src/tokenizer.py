@@ -1,212 +1,336 @@
 import ply.lex as lex
+import re
 
-# tokens
-tokens = (
-    'LBRACE',
-    'RBRACE',
-    'LBRACKET',
-    'RBRACKET',
-    'COMMA',
-    'EQUALS',
+def remove_quotes(string):
+    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
+    return res
+
+def parse_bool(string):
+    if string == "true":
+        return True
+    else:
+        return False
+
+tokens = [
+    'COMMENT',
+    'KEY',
     'STRING',
-    'INTEGER',
-    'DOT',
+    'INT',
     'FLOAT',
-    'BOOLEAN',
-    'DATE',
-    'TIME',
-    'DATETIME',
-    'FIELD',
-    'KEY', 
-    'OBJECT',
-    'COMMENT'
-)
+    'BOOL',
+    'OFFSETDATETIME',
+    'LOCALDATETIME',
+    'LOCALDATE',
+    'LOCALTIME',
+    'TABLE', # object
+    'OPENPR', # parenteses rectos
+    'CLOSEPR',
+    'OPENCHV', # chavetas
+    'CLOSECHV',
+    'DOT',
+    'EQUAL',
+    'COMMA'
+]
 
-t_ANY_COMMA = r'\,'
-t_DOT = r'\.'
-t_FIELD = r'[a-zA-Z_][a-zA-Z0-9_]*\s*(?=\=)'
-t_READINGVALUE_KEY = r'[a-zA-Z_]\w*\s*(?=\=)'
-t_OBJECT = r'[a-zA-Z]\w*'
+states = [('RVALUE','exclusive'),
+          ('RTABLE','exclusive'),
+          ('RARRAY','exclusive'),
+          ('RDICT' ,'exclusive')]
 
-states = (('READINGVALUE','exclusive'),)
-stack = [] # ajuda a validar o fecho de listas e dicionários
+# INITIAL
+def t_KEY(t):
+    r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RVALUE')
+    t.value = remove_quotes(t.value)
+    t.lexer.push_state('RVALUE')
+    return t
 
-# Ignorar espaços em branco e tabulações
-t_ANY_ignore = ' \t'
+def t_DOT(t):
+    r'\.'
+    return t
 
-# Lidar com \n
+def t_OPENPR(t):
+    r'\['
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RTABLE')
+    t.lexer.push_state('RTABLE')
+    return t
+
+def t_CLOSEPR(t):
+    r'\]'
+    t.lexer.pop_state()
+    return t
+
+# RTABLE
+def t_RTABLE_OPENPR(t):
+    r'\['
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RTABLE')
+    t.lexer.push_state('RTABLE')
+    return t
+
+def t_RTABLE_TABLE(t):
+    r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
+    t.value = remove_quotes(t.value)
+    return t
+
+def t_RTABLE_DOT(t):
+    r'\.'
+    return t
+
+def t_RTABLE_CLOSEPR(t):
+    r'\]'
+    t.lexer.pop_state()
+    return t
+
+
+# RVALUE
+def t_RVALUE_DOT(t):
+    r'\.'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_newline(t):
+    r'\n'
+    t.lexer.lineno += 1
+    t.lexer.pop_state()
+
+def t_RVALUE_OFFSETDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALDATE(t):
+    r'\d{4}\-\d{2}\-\d{2}'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_LOCALTIME(t):
+    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_EQUAL(t):
+    r'='
+    return t
+
+def t_RVALUE_STRING(t):
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    t.value = remove_quotes(t.value)
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_FLOAT(t):
+    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_INT(t):
+    r'(\+|\-)?\d+'
+    t.value = int(t.value)
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_BOOL(t):
+    r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_OPENPR(t):
+    r'\['
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
+    t.lexer.push_state('RARRAY')
+    return t
+
+def t_RVALUE_CLOSEPR(t):
+    r'\]'
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_OPENCHV(t):
+    r'\{'
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
+    t.lexer.push_state('RDICT')
+    return t
+
+def t_RVALUE_CLOSECHV(t):
+    r'\}'
+    t.lexer.pop_state()
+    return t
+
+# RARRAY
+def t_RARRAY_OFFSETDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    return t
+
+def t_RARRAY_LOCALDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RARRAY_LOCALDATE(t):
+    r'\d{4}\-\d{2}\-\d{2}'
+    return t
+
+def t_RARRAY_LOCALTIME(t):
+    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RARRAY_STRING(t):
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    t.value = remove_quotes(t.value)
+    return t
+
+def t_RARRAY_FLOAT(t):
+    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
+    return t
+
+def t_RARRAY_INT(t):
+    r'(\+|\-)?\d+'
+    t.value = int(t.value)
+    return t
+
+def t_RARRAY_BOOL(t):
+    r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
+    return t
+
+def t_RARRAY_COMMA(t):
+    r'\,'
+    return t
+
+def t_RARRAY_OPENPR(t):
+    r'\['
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.push_state('RARRAY')
+    return t
+
+def t_RARRAY_CLOSEPR(t):
+    r'\]'
+    t.lexer.pop_state()
+    return t
+
+def t_RARRAY_OPENCHV(t):
+    r'\{'
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.push_state('RDICT')
+    return t
+
+def t_RARRAY_CLOSECHV(t):
+    r'\}'
+    t.lexer.pop_state()
+    return t
+
+# RDICT
+def t_RDICT_KEY(t):
+    r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RVALUE')
+    t.value = remove_quotes(t.value)
+    t.lexer.push_state('RVALUE')
+    return t
+
+def t_RDICT_EQUAL(t):
+    r'='
+    return t
+
+def t_RDICT_STRING(t):
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    t.value = remove_quotes(t.value)
+    return t
+
+def t_RDICT_OFFSETDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    return t
+
+def t_RDICT_LOCALDATETIME(t):
+    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RDICT_LOCALDATE(t):
+    r'\d{4}\-\d{2}\-\d{2}'
+    return t
+
+def t_RDICT_LOCALTIME(t):
+    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    return t
+
+def t_RDICT_FLOAT(t):
+    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    t.value = float(t.value)
+    return t
+
+def t_RDICT_INT(t):
+    r'(\+|\-)?\d+'
+    t.value = int(t.value)
+    return t
+
+def t_RDICT_BOOL(t):
+    r'\b(true|false)\b'
+    t.value = parse_bool(t.value)
+    return t
+
+def t_RDICT_COMMA(t):
+    r'\,'
+    return t
+
+def t_RDICT_OPENPR(t):
+    r'\['
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RARRAY')
+    t.lexer.push_state('RARRAY')
+    return t
+
+def t_RDICT_CLOSEPR(t):
+    r'\]'
+    t.lexer.pop_state()
+    return t
+
+def t_RDICT_OPENCHV(t):
+    r'\{'
+    # t.lexer.push_state(t.lexer.lexstate)
+    # t.lexer.begin('RDICT')
+    t.lexer.push_state('RDICT')
+    return t
+
+def t_RDICT_CLOSECHV(t):
+    r'\}'
+    t.lexer.pop_state()
+    return t
+
+t_ANY_ignore = '\t '
+
+def t_ANY_error(t):
+    print(f'Erro em "{t.value}"')
+    exit(1)
+
+def t_ANY_COMMENT(t):
+    r'\#.*'
+    # return t
+
 def t_ANY_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-# Lidar com erros
-def t_ANY_error(t):
-    raise SyntaxError(f"Caracter ilegal '{t.value[0]}' (line {t.lexer.lineno})")
-
-# Ignorar comentarios
-def t_ANY_COMMENT(t):
-    r'\#.*(?=\n)'
-
-t_READINGVALUE_EQUALS = r'\='
-def t_EQUALS(t):
-    r'\='
-    t.lexer.begin('READINGVALUE')
-    return t
-
-t_LBRACKET = r'\['
-def t_READINGVALUE_LBRACKET(t):
-    r'\['
-    global stack
-    stack.append('[')
-    return t
-
-t_RBRACKET = r'\]'
-def t_READINGVALUE_RBRACKET(t):
-    r'\]'
-    global stack
-    if stack.pop() == '[':
-        if not stack:  # a lista terminou de ser lida, ou seja, deixamos de ler valores pelo que retornamos ao estado INITIAL
-            t.lexer.begin('INITIAL')
-        return t
-    else:
-        raise SyntaxError(f"Error closing list: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with the current structure.")
-
-def t_READINGVALUE_LBRACE(t):
-    r'\{'
-    global stack
-    stack.append('{')
-    return t
-
-def t_READINGVALUE_RBRACE(t):
-    r'\}'
-    global stack
-    if stack.pop() == '{':
-        if not stack:
-            t.lexer.begin('INITIAL')
-        return t
-    else:
-        raise SyntaxError(f"Error closing dictionary: the char '{t.value[0]}' (line {t.lexer.lineno}) is not compatible with the current structure.")
-
-def t_READINGVALUE_BOOLEAN(t):
-    r'\btrue\b|\bfalse\b'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este boolean não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-def t_READINGVALUE_DATETIME(t):
-    r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-\d{2}:\d{2}'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este datetime não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-def t_READINGVALUE_DATE(t):
-    r'\d{4}-\d{2}-\d{2}'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este date não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-def t_READINGVALUE_TIME(t):
-    r'\d{2}:\d{2}:\d{2}'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este time não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-t_STRING = r'\"[^"]*\"|\'[^\']*\''
-def t_READINGVALUE_STRING(t):
-    r'\"[^"]*\"|\'[^\']*\''
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que esta string não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-
-def t_READINGVALUE_FLOAT(t):
-    r'(\+|\-)?\d+\.\d+'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este float não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
-
-def t_READINGVALUE_INTEGER(t):
-    r'(\+|\-)?\d+'
-    global stack
-    if not stack: # só pode voltar ao estado inicial se estiver garantido que este integer não está dentro de uma lista/dicionário e, para isso, verificamos se a stack não tem nada
-        t.lexer.begin('INITIAL')
-    return t
 
 lexer = lex.lex()
-data = '''
-# This is a TOML document
 
-title = "TOML Example"
+# with open('examples/data1.toml') as f:
+#     lexer.input(f.read())
 
-[owner]
-name = "Tom Preston-Werner"
-dob = 1979-05-27T07:32:00-08:00
-
-[database]
-enabled = true
-ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], [3.14] ]
-temp_targets = { cpu = 79.5, case = 72.0 }
-
-[servers]
-
-    [servers.alpha]
-    ip = "10.0.0.1"
-    role = "frontend"
-
-[servers.beta]
-ip = "10.0.0.2"
-role = "backend"
-'''
-
-data2 = '''
-name = "Orange"
-physical.color = "orange"
-physical.shape = "round"
-site."google.com" = true
-'''
-
-data3 = '''
-fruit.name = "banana"     # this is best practice
-fruit. color = "yellow"    # same as fruit.color
-fruit . flavor = "banana"   # same as fruit.flavor
-'''
-
-data4 = '''
-spelling = "favorite"
-"spelling" = "favourite"
-'''
-
-data5 = '''
-# This makes the key "fruit" into a table.
-fruit.apple.smooth = true
-
-# So then you can add to the table "fruit" like so:
-fruit.orange = 2
-'''
-
-data6 = '''
-# array de objectos
-[[products]]
-name = "Hammer"
-sku = 738594937
-
-[[products]]  # empty table within the array
-
-[[products]]
-name = "Nail"
-sku = 284758393
-
-color = "gray"
-'''
-
-lexer.input(data6)
-
-for tok in lexer:
-    print(tok)
+# for token in lexer:
+#     print(f'{token}: {lexer.current_state()}')

@@ -1,5 +1,6 @@
 .vscode
 test.py
 examples
-res.json
+result.json
 parser.out
+__pycache__
