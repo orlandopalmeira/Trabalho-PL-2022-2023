@@ -83,11 +83,26 @@ def merge_dictionaries(dictionaries_list):
                 result[key] = value
     return result
 
+##! Talvez meter esta função num sitio mais apropriado
+def find_column(token):
+    text = token.lexer.lexdata
+    line_start = text.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+# Retorna a linha do token em questão
+def getline(token) -> str:
+    i:int = token.lineno
+    text = token.lexer.lexdata
+    lines = text.split('\n')
+    return lines[i-1]
+
+
+
 def p_1(p):
     'file : toml'
     with open(out_file,'w') as wf:
         json.dump(p[1], wf, indent=2, ensure_ascii=False)
-    print("\nParsing finalizado!")
+    print(f"\nResultado escrito no ficheiro {out_file}.")
 
 def p_2(p):
     'toml : kvaluepairs tables'
@@ -205,7 +220,10 @@ def p_27(p):
     p[0] = [p[1]] + p[3]
 
 def p_28(p):
-    'arraycontent : value'
+    '''
+    arraycontent : value
+                 | value COMMA
+    '''
     p[0] = [p[1]]
 
 def p_29(p):
@@ -226,15 +244,27 @@ def p_32(p):
 
 def p_error(p):
     parser.success = False
-    print('Syntax error!')
-    # exit()
+    if p:
+        coluna = find_column(p)
+        line = getline(p)
+        print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
+        print(f"Encontrado token '{p.value}' inesperado.")
+        print(f"{line.rstrip()}")
+        print(" " * (coluna - 1) + "^")
+
+    else:
+        #! Tenho de ver melhor em que situaçoes ocorre isto.
+        print("Erro de sintaxe no EOF.")
+
+    print("Execução interrompida!")
+    exit(1)
 
 parser = yacc.yacc(debug=True)
 parser.success = True
 
 ### Main
 # python3 grammar.py (<ficheiro_input>) (<ficheiro_output>)
-in_file = "examples/data1.toml"
+in_file = "examples/invalid/float/exp-double-us.toml"
 out_file = "result.json"
 if len(sys.argv) > 2:
     out_file = sys.argv[2] 
@@ -243,6 +273,7 @@ if len(sys.argv) > 1:
 
 print(f"Ficheiro de input: {in_file}.")
 print(f"Ficheiro de output: {out_file}.")
+print("\nA analisar..")
 
 with open(in_file) as rf:
     parser.parse(rf.read())

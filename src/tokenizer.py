@@ -2,7 +2,7 @@ import ply.lex as lex
 import re
 
 def remove_quotes(string):
-    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
+    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
     return res
 
 def parse_bool(string):
@@ -10,6 +10,18 @@ def parse_bool(string):
         return True
     else:
         return False
+    
+def find_column(token):
+    text = token.lexer.lexdata
+    line_start = text.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+# Retorna a linha do token em questão
+def getline(token) -> str:
+    i:int = token.lineno
+    text = token.lexer.lexdata
+    lines = text.split('\n')
+    return lines[i-1]
 
 tokens = [
     'COMMENT',
@@ -315,7 +327,13 @@ def t_RDICT_CLOSECHV(t):
 t_ANY_ignore = '\t '
 
 def t_ANY_error(t):
-    print(f'Erro em "{t.value}"')
+    # print(f'Erro em "{t.value}"')
+    coluna = find_column(t)
+    line = getline(t)
+    print(f"Erro de parsing: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
+    print(f"{line.rstrip()}")
+    print(" " * (coluna - 1) + "^")
+    print("Execução interrompida!")
     exit(1)
 
 def t_ANY_COMMENT(t):
