@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from tokenizer import tokens
 import json
+import sys
 
 #! Evita o warning "WARNING: Token 'COMMENT' defined, but not used" 
 tokens.remove('COMMENT')
@@ -84,19 +85,19 @@ def merge_dictionaries(dictionaries_list):
 
 def p_1(p):
     'file : toml'
-    with open('result.json','w') as f:
-        json.dump(p[1],f,indent=2,ensure_ascii=False)
+    with open(out_file,'w') as wf:
+        json.dump(p[1], wf, indent=2, ensure_ascii=False)
+    print("\nParsing finalizado!")
 
 def p_2(p):
     'toml : kvaluepairs tables'
-    p[0] = p[1]
-    p[0].update(p[2])
+    # p[0] = p[1]
+    # p[0].update(p[2])
+    p[0] = merge_dictionaries([p[1], p[2]])
 
 def p_3(p):
     'kvaluepairs : kvaluepair kvaluepairs'
-    # p[0] = [p[1]] + p[2]
-    p[0] = p[1]
-    p[0].update(p[2])
+    p[0] = merge_dictionaries([p[1], p[2]])
 
 def p_4(p):
     'kvaluepairs : '
@@ -104,7 +105,6 @@ def p_4(p):
 
 def p_5(p):
     'kvaluepair : key EQUAL value'
-    # p[0] = (p[1],p[3]) -> antigo
     p[0] = calcObject(p[1],p[3])
 
 def p_6(p):
@@ -112,7 +112,7 @@ def p_6(p):
     p[0] = [p[1]] + p[3]
 
 def p_7(p):
-    'key :  KEY'
+    'key : KEY'
     p[0] = [p[1]]
 
 def p_8(p):
@@ -149,7 +149,7 @@ def p_13(p):
     p[0] = [p[1]] + p[3]
 
 def p_14(p):
-    'tablename :  TABLE'
+    'tablename : TABLE'
     p[0] = [p[1]]
 
 def p_15(p):
@@ -157,39 +157,39 @@ def p_15(p):
     p[0] = p[1]
 
 def p_16(p):
-    'value :  FLOAT'
+    'value : FLOAT'
     p[0] = p[1]
 
 def p_17(p):
-    'value :  STRING'
+    'value : STRING'
     p[0] = p[1]
 
 def p_18(p):
-    'value :  BOOL'
+    'value : BOOL'
     p[0] = p[1]
 
 def p_19(p):
-    'value :  OFFSETDATETIME'
+    'value : OFFSETDATETIME'
     p[0] = p[1]
 
 def p_20(p):
-    'value :  LOCALDATETIME'
+    'value : LOCALDATETIME'
     p[0] = p[1]
 
 def p_21(p):
-    'value :  LOCALDATE'
+    'value : LOCALDATE'
     p[0] = p[1]
 
 def p_22(p):
-    'value :  LOCALTIME'
+    'value : LOCALTIME'
     p[0] = p[1]
 
 def p_23(p):
-    'value :  array'
+    'value : array'
     p[0] = p[1]
 
 def p_24(p):
-    'value :  dictionary'
+    'value : dictionary'
     p[0] = p[1]
 
 def p_25(p):
@@ -197,7 +197,7 @@ def p_25(p):
     p[0] = []
 
 def p_26(p):
-    'array :  OPENPR arraycontent CLOSEPR'
+    'array : OPENPR arraycontent CLOSEPR'
     p[0] = p[2]
 
 def p_27(p):
@@ -205,7 +205,7 @@ def p_27(p):
     p[0] = [p[1]] + p[3]
 
 def p_28(p):
-    'arraycontent :  value'
+    'arraycontent : value'
     p[0] = [p[1]]
 
 def p_29(p):
@@ -213,7 +213,7 @@ def p_29(p):
     p[0] = dict()
 
 def p_30(p):
-    'dictionary :  OPENCHV dictcontent CLOSECHV'
+    'dictionary : OPENCHV dictcontent CLOSECHV'
     p[0] = dict(merge_dictionaries(p[2]))
 
 def p_31(p):
@@ -221,7 +221,7 @@ def p_31(p):
     p[0] = [p[1]] + p[3]
 
 def p_32(p):
-    'dictcontent :  kvaluepair'
+    'dictcontent : kvaluepair'
     p[0] = [p[1]]
 
 def p_error(p):
@@ -231,7 +231,18 @@ def p_error(p):
 
 parser = yacc.yacc(debug=True)
 parser.success = True
-parser.custo = 0.0
 
-with open('src/examples/arraytables.toml') as f:
-    parser.parse(f.read())
+### Main
+# python3 grammar.py (<ficheiro_input>) (<ficheiro_output>)
+in_file = "examples/data1.toml"
+out_file = "result.json"
+if len(sys.argv) > 2:
+    out_file = sys.argv[2] 
+if len(sys.argv) > 1:
+    in_file = sys.argv[1]
+
+print(f"Ficheiro de input: {in_file}.")
+print(f"Ficheiro de output: {out_file}.")
+
+with open(in_file) as rf:
+    parser.parse(rf.read())
