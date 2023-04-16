@@ -64,6 +64,12 @@ def calcObject(chaves, valor):
         dicionario = {chave: dicionario}
     return dicionario
 
+def calcObjectArrayTable(chaves, valor):
+    dicionario = {chaves[-1]: [valor]}
+    for chave in reversed(chaves[:-1]):
+        dicionario = {chave: dicionario}
+    return dicionario
+
 def merge_dictionaries(dictionaries_list):
     result = {}
     for dictionary in dictionaries_list:
@@ -133,7 +139,7 @@ def p_11(p):
 
 def p_12(p):
     'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR kvaluepairs'
-    p[0] = calcObject(p[3],p[6])
+    p[0] = calcObjectArrayTable(p[3],p[6])
 
 def p_13(p):
     'tablename : TABLE DOT tablename'
@@ -224,5 +230,5 @@ parser = yacc.yacc(debug=True)
 parser.success = True
 parser.custo = 0.0
 
-with open('examples/data1.toml') as f:
+with open('examples/arraytables.toml') as f:
     parser.parse(f.read())
