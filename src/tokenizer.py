@@ -3,6 +3,7 @@ import re
 
 def remove_quotes(string):
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
+    # res = re.sub(r'\\\\', r'\\', res)
     return res
 
 def parse_bool(string):
@@ -131,7 +132,7 @@ def t_RVALUE_EQUAL(t):
     return t
 
 def t_RVALUE_STRING(t):
-    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     t.value = remove_quotes(t.value)
     t.lexer.pop_state()
     return t
@@ -198,7 +199,7 @@ def t_RARRAY_LOCALTIME(t):
     return t
 
 def t_RARRAY_STRING(t):
-    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|\"[^\"\n]*\"|\'[^\'\n]*\''
+    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     t.value = remove_quotes(t.value)
     return t
 
@@ -288,9 +289,9 @@ def t_ANY_error(t):
     # print(f'Erro em "{t.value}"')
     coluna = find_column(t)
     line = getline(t)
-    print(f"Erro de parsing: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
+    print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
     print(f"{line.rstrip()}")
-    print(" " * (coluna - 1) + "^")
+    print(" " * (coluna - 1) + "^") #! esta lógica do apontador da coluna pode n funcionar mt bem devido a eventuais \n (ainda estou a averiguar)
     print("Execução interrompida!")
     exit(1)
 
@@ -305,7 +306,8 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-with open('/home/orlando/Desktop/Trabalho-PL-2022-2023/tests/valid/array/string-quote-comma-2.toml') as f:
+# with open('/home/pedro/PL/Trabalho-PL-2022-2023/tests/valid/array/string-quote-comma-2.toml') as f:
+with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml') as f:
     lexer.input(f.read())
 
 for token in lexer:
