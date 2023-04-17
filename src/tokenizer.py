@@ -2,8 +2,11 @@ import ply.lex as lex
 import re
 
 def remove_quotes(string):
+    if string[0] == '"': # basic string
+        string = string.replace('\\"', '"').replace('\\\\','\\')
+    else: # literal string
+        pass
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
-    res = res.replace('\\"', '"').replace('\\\\','\\')
     return res
 
 def parse_bool(string):
