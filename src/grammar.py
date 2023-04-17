@@ -97,7 +97,7 @@ def getline(token) -> str:
     return lines[i-1]
 
 def p_0(p):
-    'file : NEWLINE toml'
+    'file : newlines toml'
     p.parser.result = p[2]
 
 def p_1(p):
@@ -114,7 +114,7 @@ def p_2(p):
     p[0] = merge_dictionaries([p[1], p[2]])
 
 def p_3(p):
-    'kvaluepairs : kvaluepair NEWLINE kvaluepairs'
+    'kvaluepairs : kvaluepair newlines kvaluepairs'
     p[0] = merge_dictionaries([p[1], p[3]])
 
 def p_4(p):
@@ -123,7 +123,7 @@ def p_4(p):
 
 def p_34(p):
     'kvaluepairs : kvaluepair'
-    p[0] = dict()
+    p[0] = p[1]
 
 def p_5(p):
     'kvaluepair : key EQUAL value'
@@ -158,12 +158,12 @@ def p_10(p):
     p[0] = dict()
 
 def p_11(p):
-    'normaltable : OPENPR tablename CLOSEPR NEWLINE kvaluepairs'
+    'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
     pass
 
 def p_12(p):
-    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR NEWLINE kvaluepairs'
+    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
     p[0] = calcObjectArrayTable(p[3],p[7])
 
 def p_13(p):
@@ -249,6 +249,12 @@ def p_31(p):
 def p_32(p):
     'dictcontent : kvaluepair'
     p[0] = [p[1]]
+
+def p_newlines(t):
+    '''
+    newlines : NEWLINE newlines
+             | NEWLINE
+    '''
 
 def p_error(p):
     parser.success = False

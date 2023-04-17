@@ -299,9 +299,9 @@ def t_ANY_error(t):
     exit(1)
 
 def t_ANY_COMMENT(t):
-    r'\#.*\n*'
-    arr = re.findall(r'\n', t.value)
-    t.lexer.lineno += len(arr)
+    r'\#.*'
+    # arr = re.findall(r'\n', t.value)
+    # t.lexer.lineno += len(arr)
 
 def t_ANY_newline(t):
     r'\n+'
@@ -310,8 +310,7 @@ def t_ANY_newline(t):
 
 lexer = lex.lex()
 
-# with open('/home/pedro/PL/Trabalho-PL-2022-2023/tests/valid/array/string-quote-comma-2.toml') as f:
-# with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml') as f:
+# with open('examples/test.toml') as f:
 #     lexer.input(f.read())
 
 # for token in lexer:

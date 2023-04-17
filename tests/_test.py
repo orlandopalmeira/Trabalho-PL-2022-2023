@@ -42,7 +42,7 @@ def parseAll(elem):
 
 #! Converte os dicionários dos json de teste para um formato válido para nós
 def convert_dict(dic):
-    aux = lambda x: parseVal(x['value']) if (len(x) == 2 and 'type' in x and 'value' in x) else x
+    aux = lambda x: parseVal(x['value']) if (isinstance(x,dict) and 'type' in x and 'value' in x and len(x) == 2) else x
     dic = aux(dic)
     if isinstance(dic, dict):
         for k,v in dic.items():
