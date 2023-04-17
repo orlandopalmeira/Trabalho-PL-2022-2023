@@ -3,7 +3,7 @@ import re
 
 def remove_quotes(string):
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
-    # res = res.replace('\\\\', '\\')
+    res = res.replace('\\"', '"').replace('\\\\','\\')
     return res
 
 def parse_bool(string):
@@ -297,7 +297,8 @@ def t_ANY_error(t):
 
 def t_ANY_COMMENT(t):
     r'\#.*\n*'
-    t.lexer.lineno += 1
+    arr = re.findall(r'\n', t.value)
+    t.lexer.lineno += len(arr)
 
 def t_ANY_newline(t):
     r'\n+'

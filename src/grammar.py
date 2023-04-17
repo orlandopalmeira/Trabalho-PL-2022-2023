@@ -121,6 +121,10 @@ def p_4(p):
     'kvaluepairs : '
     p[0] = dict()
 
+def p_34(p):
+    'kvaluepairs : kvaluepair'
+    p[0] = dict()
+
 def p_5(p):
     'kvaluepair : key EQUAL value'
     p[0] = calcObject(p[1],p[3])
@@ -181,6 +185,7 @@ def p_16(p):
 def p_17(p):
     'value : STRING'
     p[0] = p[1]
+    # print(p[0])
 
 def p_18(p):
     'value : BOOL'
