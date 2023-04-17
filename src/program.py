@@ -11,8 +11,8 @@ if len(sys.argv) > 2:
 if len(sys.argv) > 1:
     in_file = sys.argv[1]
 
-print(f"Ficheiro de input: {in_file}.")
-print(f"Ficheiro de output: {out_file}.")
+print(f"Ficheiro de input: {in_file}")
+print(f"Ficheiro de output: {out_file}")
 print("\nA analisar..")
 
 with open(in_file) as rf:

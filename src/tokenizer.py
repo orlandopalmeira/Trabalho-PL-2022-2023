@@ -3,7 +3,7 @@ import re
 
 def remove_quotes(string):
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
-    # res = re.sub(r'\\\\', r'\\', res)
+    # res = res.replace('\\\\', '\\')
     return res
 
 def parse_bool(string):
@@ -296,7 +296,7 @@ def t_ANY_error(t):
     exit(1)
 
 def t_ANY_COMMENT(t):
-    r'\#.*\n'
+    r'\#.*\n*'
     t.lexer.lineno += 1
 
 def t_ANY_newline(t):
@@ -307,8 +307,8 @@ def t_ANY_newline(t):
 lexer = lex.lex()
 
 # with open('/home/pedro/PL/Trabalho-PL-2022-2023/tests/valid/array/string-quote-comma-2.toml') as f:
-with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml') as f:
-    lexer.input(f.read())
+# with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml') as f:
+#     lexer.input(f.read())
 
-for token in lexer:
-    print(f'{token}: {lexer.current_state()}')
+# for token in lexer:
+#     print(f'{token}: {lexer.current_state()}')
