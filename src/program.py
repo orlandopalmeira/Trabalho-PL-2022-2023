@@ -4,7 +4,8 @@ from grammar import parser
 
 ### Main
 # python3 program.py (<ficheiro_input>) (<ficheiro_output>)
-in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml"
+# in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml"
+in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml"
 out_file = "result.json"
 if len(sys.argv) > 2:
     out_file = sys.argv[2] 
