@@ -179,12 +179,6 @@ def t_RVALUE_FLOAT(t):
     t.lexer.pop_state()
     return t
 
-def t_RVALUE_INT(t):
-    r'(\+|\-)?[1-9](?:\_?\d)*' # não pode começar em 0
-    t.value = int(t.value)
-    t.lexer.pop_state()
-    return t
-
 def t_RVALUE_INTHEX(t):
     r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
     t.value = int(t.value, 16)
@@ -203,6 +197,12 @@ def t_RVALUE_INTBIN(t):
     r'0b[01](_?[01])+'
     t.value = int(t.value, 2)
     t.type = "INT"
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_INT(t):
+    r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
+    t.value = int(t.value)
     t.lexer.pop_state()
     return t
 
@@ -279,12 +279,6 @@ def t_RARRAY_FLOAT(t):
     t.value = float(t.value)
     return t
 
-def t_RARRAY_INT(t):
-    # r'(\+|\-)?\d+'
-    r'(\+|\-)?[1-9](?:\_?\d)*' # não pode começar em 0
-    t.value = int(t.value)
-    return t
-
 def t_RARRAY_INTHEX(t):
     r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
     t.value = int(t.value, 16)
@@ -301,6 +295,12 @@ def t_RARRAY_INTBIN(t):
     r'0b[01](_?[01])+'
     t.value = int(t.value, 2)
     t.type = "INT"
+    return t
+
+def t_RARRAY_INT(t):
+    # r'(\+|\-)?\d+'
+    r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
+    t.value = int(t.value)
     return t
 
 def t_RARRAY_BOOL(t):
