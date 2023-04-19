@@ -174,15 +174,35 @@ def t_RVALUE_STRING(t):
 
 def t_RVALUE_FLOAT(t):
     # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    r'(\+|\-)?(\d+(\.\d+)?e(\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
     t.value = float(t.value)
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_INT(t):
-    # r'(\+|\-)?\d+' # É permitido ter underscores entre os números
-    r'(\+|\-)?\d(?:\_?\d)*'
+    r'(\+|\-)?[1-9](?:\_?\d)*' # não pode começar em 0
     t.value = int(t.value)
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_INTHEX(t):
+    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
+    t.value = int(t.value, 16)
+    t.type = "INT"
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_INTOCT(t):
+    r'0o[0-7](_?[0-7])+'
+    t.value = int(t.value, 8)
+    t.type = "INT"
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_INTBIN(t):
+    r'0b[01](_?[01])+'
+    t.value = int(t.value, 2)
+    t.type = "INT"
     t.lexer.pop_state()
     return t
 
@@ -255,14 +275,32 @@ def t_RARRAY_STRING(t):
 
 def t_RARRAY_FLOAT(t):
     # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    r'(\+|\-)?(\d+(\.\d+)?e(\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
     t.value = float(t.value)
     return t
 
 def t_RARRAY_INT(t):
     # r'(\+|\-)?\d+'
-    r'(\+|\-)?\d(?:\_?\d)*'
+    r'(\+|\-)?[1-9](?:\_?\d)*' # não pode começar em 0
     t.value = int(t.value)
+    return t
+
+def t_RARRAY_INTHEX(t):
+    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
+    t.value = int(t.value, 16)
+    t.type = "INT"
+    return t
+
+def t_RARRAY_INTOCT(t):
+    r'0o[0-7](_?[0-7])+'
+    t.value = int(t.value, 8)
+    t.type = "INT"
+    return t
+
+def t_RARRAY_INTBIN(t):
+    r'0b[01](_?[01])+'
+    t.value = int(t.value, 2)
+    t.type = "INT"
     return t
 
 def t_RARRAY_BOOL(t):
@@ -339,7 +377,6 @@ def t_RDICT_CLOSECHV(t):
 t_ANY_ignore = '\t '
 
 def t_ANY_error(t):
-    # print(f'Erro em "{t.value}"')
     coluna = find_column(t)
     line = getline(t)
     print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
