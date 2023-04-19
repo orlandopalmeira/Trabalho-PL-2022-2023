@@ -187,7 +187,7 @@ def t_RVALUE_FLOAT(t):
     return t
 
 def t_RVALUE_INTHEX(t):
-    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
+    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
     t.type = "INT"
@@ -195,7 +195,7 @@ def t_RVALUE_INTHEX(t):
     return t
 
 def t_RVALUE_INTOCT(t):
-    r'0o[0-7](_?[0-7])+'
+    r'0o[0-7](_?[0-7])*'
     t.value = int(t.value, 8)
     flag = isValidInt(t.value)
     t.type = "INT"
@@ -203,7 +203,7 @@ def t_RVALUE_INTOCT(t):
     return t
 
 def t_RVALUE_INTBIN(t):
-    r'0b[01](_?[01])+'
+    r'0b[01](_?[01])*'
     t.value = int(t.value, 2)
     flag = isValidInt(t.value)
     t.type = "INT"
@@ -291,28 +291,27 @@ def t_RARRAY_FLOAT(t):
     return t
 
 def t_RARRAY_INTHEX(t):
-    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
+    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
 def t_RARRAY_INTOCT(t):
-    r'0o[0-7](_?[0-7])+'
+    r'0o[0-7](_?[0-7])*'
     t.value = int(t.value, 8)
     flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
 def t_RARRAY_INTBIN(t):
-    r'0b[01](_?[01])+'
+    r'0b[01](_?[01])*'
     t.value = int(t.value, 2)
     flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
 def t_RARRAY_INT(t):
-    # r'(\+|\-)?\d+'
     r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
     t.value = int(t.value)
     flag = isValidInt(t.value)
