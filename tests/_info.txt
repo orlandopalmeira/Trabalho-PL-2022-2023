@@ -1,0 +1,5 @@
+Testes ignorados (muito estranhos, falar com o professor):
+    - ./valid/datetime/no-seconds.toml
+    - ./valid/key/unicode.toml
+    - ./valid/string/escape-esc.toml
+    - ./valid/string/hex-escape.toml

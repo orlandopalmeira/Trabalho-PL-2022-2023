@@ -1,4 +1,4 @@
-valid = [
+valid_old = [
     ('./valid/array/array.toml', './valid/array/array.json'),
     ('./valid/array/bool.toml', './valid/array/bool.json'),
     ('./valid/array/empty.toml', './valid/array/empty.json'),
@@ -160,6 +160,165 @@ valid = [
     ('./valid/table/with-pound.toml', './valid/table/with-pound.json'),
     ('./valid/table/with-single-quotes.toml', './valid/table/with-single-quotes.json'),
     ('./valid/table/without-super.toml', './valid/table/without-super.json')
+]
+
+valid = [
+    ('./valid2/array.toml', './valid2/array.json'),
+    ('./valid2/bool.toml', './valid2/bool.json'),
+    ('./valid2/empty.toml', './valid2/empty.json'),
+    ('./valid2/hetergeneous.toml', './valid2/hetergeneous.json'),
+    ('./valid2/mixed-int-array.toml', './valid2/mixed-int-array.json'),
+    ('./valid2/mixed-int-float.toml', './valid2/mixed-int-float.json'),
+    ('./valid2/mixed-int-string.toml', './valid2/mixed-int-string.json'),
+    ('./valid2/mixed-string-table.toml', './valid2/mixed-string-table.json'),
+    ('./valid2/nested-double.toml', './valid2/nested-double.json'),
+    ('./valid2/nested-inline-table.toml', './valid2/nested-inline-table.json'),
+    ('./valid2/nested.toml', './valid2/nested.json'),
+    ('./valid2/nospaces.toml', './valid2/nospaces.json'),
+    ('./valid2/string-quote-comma-2.toml', './valid2/string-quote-comma-2.json'),
+    ('./valid2/string-quote-comma.toml', './valid2/string-quote-comma.json'),
+    ('./valid2/string-with-comma-2.toml', './valid2/string-with-comma-2.json'),
+    ('./valid2/string-with-comma.toml', './valid2/string-with-comma.json'),
+    ('./valid2/strings.toml', './valid2/strings.json'),
+    ('./valid2/table-array-string-backslash.toml', './valid2/table-array-string-backslash.json'),
+    ('./valid2/bool.toml', './valid2/bool.json'),
+    ('./valid2/at-eof.toml', './valid2/at-eof.json'),
+    ('./valid2/at-eof2.toml', './valid2/at-eof2.json'),
+    ('./valid2/everywhere.toml', './valid2/everywhere.json'),
+    ('./valid2/noeol.toml', './valid2/noeol.json'),
+    ('./valid2/nonascii.toml', './valid2/nonascii.json'),
+    ('./valid2/tricky.toml', './valid2/tricky.json'),
+    ('./valid2/datetime.toml', './valid2/datetime.json'),
+    ('./valid2/local-date.toml', './valid2/local-date.json'),
+    ('./valid2/local-time.toml', './valid2/local-time.json'),
+    ('./valid2/local.toml', './valid2/local.json'),
+    ('./valid2/milliseconds.toml', './valid2/milliseconds.json'),
+    ('./valid2/timezone.toml', './valid2/timezone.json'),
+    ('./valid2/empty-file.toml', './valid2/empty-file.json'),
+    ('./valid2/example.toml', './valid2/example.json'),
+    ('./valid2/exponent.toml', './valid2/exponent.json'),
+    ('./valid2/float.toml', './valid2/float.json'),
+    ('./valid2/inf-and-nan.toml', './valid2/inf-and-nan.json'),
+    ('./valid2/long.toml', './valid2/long.json'),
+    ('./valid2/underscore.toml', './valid2/underscore.json'),
+    ('./valid2/zero.toml', './valid2/zero.json'),
+    ('./valid2/implicit-and-explicit-after.toml', './valid2/implicit-and-explicit-after.json'),
+    ('./valid2/implicit-and-explicit-before.toml', './valid2/implicit-and-explicit-before.json'),
+    ('./valid2/implicit-groups.toml', './valid2/implicit-groups.json'),
+    ('./valid2/array.toml', './valid2/array.json'),
+    ('./valid2/bool.toml', './valid2/bool.json'),
+    ('./valid2/empty.toml', './valid2/empty.json'),
+    ('./valid2/end-in-bool.toml', './valid2/end-in-bool.json'),
+    ('./valid2/inline-table.toml', './valid2/inline-table.json'),
+    ('./valid2/key-dotted.toml', './valid2/key-dotted.json'),
+    ('./valid2/multiline.toml', './valid2/multiline.json'),
+    ('./valid2/nest.toml', './valid2/nest.json'),
+    ('./valid2/integer.toml', './valid2/integer.json'),
+    ('./valid2/literals.toml', './valid2/literals.json'),
+    ('./valid2/long.toml', './valid2/long.json'),
+    ('./valid2/underscore.toml', './valid2/underscore.json'),
+    ('./valid2/zero.toml', './valid2/zero.json'),
+    ('./valid2/alphanum.toml', './valid2/alphanum.json'),
+    ('./valid2/case-sensitive.toml', './valid2/case-sensitive.json'),
+    ('./valid2/dotted-empty.toml', './valid2/dotted-empty.json'),
+    ('./valid2/dotted.toml', './valid2/dotted.json'),
+    ('./valid2/empty.toml', './valid2/empty.json'),
+    ('./valid2/equals-nospace.toml', './valid2/equals-nospace.json'),
+    ('./valid2/escapes.toml', './valid2/escapes.json'),
+    ('./valid2/numeric-dotted.toml', './valid2/numeric-dotted.json'),
+    ('./valid2/numeric.toml', './valid2/numeric.json'),
+    ('./valid2/quoted-dots.toml', './valid2/quoted-dots.json'),
+    ('./valid2/quoted-unicode.toml', './valid2/quoted-unicode.json'),
+    ('./valid2/space.toml', './valid2/space.json'),
+    ('./valid2/special-chars.toml', './valid2/special-chars.json'),
+    ('./valid2/special-word.toml', './valid2/special-word.json'),
+    ('./valid2/newline-crlf.toml', './valid2/newline-crlf.json'),
+    ('./valid2/newline-lf.toml', './valid2/newline-lf.json'),
+    ('./valid2/spec-example-1-compact.toml', './valid2/spec-example-1-compact.json'),
+    ('./valid2/spec-example-1.toml', './valid2/spec-example-1.json'),
+    ('./valid2/array-0.toml', './valid2/array-0.json'),
+    ('./valid2/array-1.toml', './valid2/array-1.json'),
+    ('./valid2/array-of-tables-0.toml', './valid2/array-of-tables-0.json'),
+    ('./valid2/array-of-tables-1.toml', './valid2/array-of-tables-1.json'),
+    ('./valid2/array-of-tables-2.toml', './valid2/array-of-tables-2.json'),
+    ('./valid2/boolean-0.toml', './valid2/boolean-0.json'),
+    ('./valid2/comment-0.toml', './valid2/comment-0.json'),
+    ('./valid2/float-0.toml', './valid2/float-0.json'),
+    ('./valid2/float-1.toml', './valid2/float-1.json'),
+    ('./valid2/float-2.toml', './valid2/float-2.json'),
+    ('./valid2/inline-table-0.toml', './valid2/inline-table-0.json'),
+    ('./valid2/inline-table-1.toml', './valid2/inline-table-1.json'),
+    ('./valid2/inline-table-2.toml', './valid2/inline-table-2.json'),
+    ('./valid2/inline-table-3.toml', './valid2/inline-table-3.json'),
+    ('./valid2/integer-0.toml', './valid2/integer-0.json'),
+    ('./valid2/integer-1.toml', './valid2/integer-1.json'),
+    ('./valid2/integer-2.toml', './valid2/integer-2.json'),
+    ('./valid2/key-value-pair-0.toml', './valid2/key-value-pair-0.json'),
+    ('./valid2/keys-0.toml', './valid2/keys-0.json'),
+    ('./valid2/keys-1.toml', './valid2/keys-1.json'),
+    ('./valid2/keys-3.toml', './valid2/keys-3.json'),
+    ('./valid2/keys-4.toml', './valid2/keys-4.json'),
+    ('./valid2/keys-5.toml', './valid2/keys-5.json'),
+    ('./valid2/keys-6.toml', './valid2/keys-6.json'),
+    ('./valid2/keys-7.toml', './valid2/keys-7.json'),
+    ('./valid2/local-date-0.toml', './valid2/local-date-0.json'),
+    ('./valid2/local-date-time-0.toml', './valid2/local-date-time-0.json'),
+    ('./valid2/local-time-0.toml', './valid2/local-time-0.json'),
+    ('./valid2/offset-date-time-0.toml', './valid2/offset-date-time-0.json'),
+    ('./valid2/offset-date-time-1.toml', './valid2/offset-date-time-1.json'),
+    ('./valid2/string-0.toml', './valid2/string-0.json'),
+    ('./valid2/string-1.toml', './valid2/string-1.json'),
+    ('./valid2/string-2.toml', './valid2/string-2.json'),
+    ('./valid2/string-3.toml', './valid2/string-3.json'),
+    ('./valid2/string-4.toml', './valid2/string-4.json'),
+    ('./valid2/string-5.toml', './valid2/string-5.json'),
+    ('./valid2/string-6.toml', './valid2/string-6.json'),
+    ('./valid2/string-7.toml', './valid2/string-7.json'),
+    ('./valid2/table-0.toml', './valid2/table-0.json'),
+    ('./valid2/table-1.toml', './valid2/table-1.json'),
+    ('./valid2/table-2.toml', './valid2/table-2.json'),
+    ('./valid2/table-3.toml', './valid2/table-3.json'),
+    ('./valid2/table-4.toml', './valid2/table-4.json'),
+    ('./valid2/table-5.toml', './valid2/table-5.json'),
+    ('./valid2/table-6.toml', './valid2/table-6.json'),
+    ('./valid2/table-7.toml', './valid2/table-7.json'),
+    ('./valid2/table-8.toml', './valid2/table-8.json'),
+    ('./valid2/table-9.toml', './valid2/table-9.json'),
+    ('./valid2/double-quote-escape.toml', './valid2/double-quote-escape.json'),
+    ('./valid2/empty.toml', './valid2/empty.json'),
+    ('./valid2/escape-tricky.toml', './valid2/escape-tricky.json'),
+    ('./valid2/escaped-escape.toml', './valid2/escaped-escape.json'),
+    ('./valid2/escapes.toml', './valid2/escapes.json'),
+    ('./valid2/multiline-escaped-crlf.toml', './valid2/multiline-escaped-crlf.json'),
+    ('./valid2/multiline-quotes.toml', './valid2/multiline-quotes.json'),
+    ('./valid2/multiline.toml', './valid2/multiline.json'),
+    ('./valid2/nl.toml', './valid2/nl.json'),
+    ('./valid2/quoted-unicode.toml', './valid2/quoted-unicode.json'),
+    ('./valid2/raw-multiline.toml', './valid2/raw-multiline.json'),
+    ('./valid2/raw.toml', './valid2/raw.json'),
+    ('./valid2/simple.toml', './valid2/simple.json'),
+    ('./valid2/unicode-escape.toml', './valid2/unicode-escape.json'),
+    ('./valid2/unicode-literal.toml', './valid2/unicode-literal.json'),
+    ('./valid2/with-pound.toml', './valid2/with-pound.json'),
+    ('./valid2/array-implicit-and-explicit-after.toml', './valid2/array-implicit-and-explicit-after.json'),
+    ('./valid2/array-implicit.toml', './valid2/array-implicit.json'),
+    ('./valid2/array-many.toml', './valid2/array-many.json'),
+    ('./valid2/array-nest.toml', './valid2/array-nest.json'),
+    ('./valid2/array-one.toml', './valid2/array-one.json'),
+    ('./valid2/array-table-array.toml', './valid2/array-table-array.json'),
+    ('./valid2/array-within-dotted.toml', './valid2/array-within-dotted.json'),
+    ('./valid2/empty-name.toml', './valid2/empty-name.json'),
+    ('./valid2/empty.toml', './valid2/empty.json'),
+    ('./valid2/keyword.toml', './valid2/keyword.json'),
+    ('./valid2/names.toml', './valid2/names.json'),
+    ('./valid2/no-eol.toml', './valid2/no-eol.json'),
+    ('./valid2/sub-empty.toml', './valid2/sub-empty.json'),
+    ('./valid2/sub.toml', './valid2/sub.json'),
+    ('./valid2/whitespace.toml', './valid2/whitespace.json'),
+    ('./valid2/with-literal-string.toml', './valid2/with-literal-string.json'),
+    ('./valid2/with-pound.toml', './valid2/with-pound.json'),
+    ('./valid2/with-single-quotes.toml', './valid2/with-single-quotes.json'),
+    ('./valid2/without-super.toml', './valid2/without-super.json')
 ]
 
 invalid = [
@@ -436,51 +595,16 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 from grammar import parser
 
-def parseBool(string):
-    if string == 'true':
-        return True
-    elif string == 'false':
-        return False
-    else:
-        raise ValueError()
-
-def parseInt(string):
-    return int(string)
-
-def parseFloat(string):
-    return float(string)
-
-def parseVal(string):
-    try:
-        return parseInt(string)
-    except:
-        try:
-            return parseFloat(string)
-        except:
-            try:
-                return parseBool(string)
-            except:
-                return string
-
-def convert_dict(input_dict):
-    output_dict = {}
-    for key, value in input_dict.items():
-        if isinstance(value, list):
-            output_dict[key] = [parseVal(item['value']) for item in value]
-        else:
-            output_dict[key] = parseVal(value)
-    return output_dict
-
 class Tests(unittest.TestCase):
 '''
     for i in range(1,len(valid)+1):
         file += f'''
     def test_{i}(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', '{valid[i-1][0]}'))) as f_test:
-            with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', '{valid[i-1][1]}'))) as f_result:
-                correct = convert_dict(json.load(f_result))
-                parser.parse(f_test.read())
-                test = parser.result
-                self.assertEqual(test,correct)
+            parser.parse(f_test.read())
+        with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', '{valid[i-1][1]}'))) as f_result:
+            correct = json.load(f_result)
+        test = parser.result
+        self.assertEqual(test,correct)
 '''
     f.write(file)
