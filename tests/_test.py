@@ -2,6 +2,7 @@ import unittest
 import os
 import sys
 import json
+import threading
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 from grammar import parser
@@ -77,7 +78,7 @@ class Tests(unittest.TestCase):
     def test_3(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid/array/empty.toml'))) as f_test:
             with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid/array/empty.json'))) as f_result:
-                correct = json.load(f_result)
+                correct = convert_dict(json.load(f_result))
                 parser.parse(f_test.read())
                 test = parser.result
                 self.assertEqual(test,correct)

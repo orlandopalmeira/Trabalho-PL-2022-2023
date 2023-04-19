@@ -28,6 +28,8 @@ tokens = [
     'COMMENT',
     'KEY',
     'STRING',
+    'LMLSTRING',
+    'BMLSTRING',
     'INT',
     'FLOAT',
     'BOOL',
@@ -58,7 +60,7 @@ def t_NEWLINE(t):
     return t
 
 def t_KEY(t):
-    r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
+    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)
@@ -90,7 +92,8 @@ def t_RTABLE_OPENPR(t):
     return t
 
 def t_RTABLE_TABLE(t):
-    r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
+    # r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
+    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
     t.value = remove_quotes(t.value)
     return t
 
@@ -112,11 +115,13 @@ def t_RVALUE_DOT(t):
 
 def t_RVALUE_OFFSETDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}Z'
+    t.value = t.value.replace(' ','T')
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.value = t.value.replace(' ','T')
     t.lexer.pop_state()
     return t
 
@@ -134,15 +139,31 @@ def t_RVALUE_EQUAL(t):
     r'='
     return t
 
+def t_RVALUE_BMLSTRING(t):
+    r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+    t.value = remove_quotes(t.value)
+    t.lexer.pop_state()
+    t.type = 'STRING'
+    return t
+
+def t_RVALUE_LMLSTRING(t):
+    R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
+    t.value = remove_quotes(t.value)
+    t.lexer.pop_state()
+    t.type = 'STRING'
+    return t
+
 def t_RVALUE_STRING(t):
     # r'(""")(?:"){0,2}[^\1]*?"""(?:"){0,2}|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
-    r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}|\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     t.value = remove_quotes(t.value)
     t.lexer.pop_state()
     return t
 
+
 def t_RVALUE_FLOAT(t):
-    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d+(\.\d+)?e(\+|\-)?\d+|\d+\.\d+)'
     t.value = float(t.value)
     t.lexer.pop_state()
     return t
@@ -202,13 +223,26 @@ def t_RARRAY_LOCALTIME(t):
     r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
     return t
 
+def t_RARRAY_BMLSTRING(t):
+    r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+    t.value = remove_quotes(t.value)
+    t.type = 'STRING'
+    return t
+
+def t_RARRAY_LMLSTRING(t):
+    R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
+    t.value = remove_quotes(t.value)
+    t.type = 'STRING'
+    return t
+
 def t_RARRAY_STRING(t):
-    r'\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     t.value = remove_quotes(t.value)
     return t
 
 def t_RARRAY_FLOAT(t):
-    r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d+(\.\d+)?e(\+|\-)?\d+|\d+\.\d+)'
     t.value = float(t.value)
     return t
 
@@ -252,7 +286,8 @@ def t_RARRAY_CLOSECHV(t):
 
 # RDICT
 def t_RDICT_KEY(t):
-    r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
+    # r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
+    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)

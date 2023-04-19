@@ -3,62 +3,11 @@ from tokenizer import tokens
 import json
 import sys
 
-#! Evita o warning "WARNING: Token 'COMMENT' defined, but not used" 
-tokens.remove('COMMENT')
+#! Evita os warnings de tokens não utilizados
+not_used_tokens = ['COMMENT','BMLSTRING','LMLSTRING']
+for tok in not_used_tokens:
+    tokens.remove(tok)
 
-'''
-GRAMATICA:
-
-file : toml
-
-toml : kvaluepairs tables
-
-# Pares chave-valor
-kvaluepairs : kvaluepair kvaluepairs
-            |
-
-kvaluepair : key EQUAL value
-
-key : KEY DOT key
-    | KEY
-
-# tabelas/objectos
-tables : normaltable tables
-       | arraytable tables
-       | 
-
-normaltable : OPENPR tablename CLOSEPR kvaluepairs
-
-arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR kvaluepairs
-
-tablename : TABLE DOT tablename
-          | TABLE
-
-# valores concretos
-value : INT
-      | FLOAT
-      | STRING
-      | BOOL
-      | OFFSETDATETIME
-      | LOCALDATETIME
-      | LOCALDATE
-      | LOCALTIME
-      | array
-      | dictionary
-
-# arrays e dicionarios
-array : OPENPR CLOSEPR
-      | OPENPR arraycontent CLOSEPR
-
-arraycontent : value COMMA arraycontent
-             | value
-
-dictionary : OPENCHV CLOSECHV
-           | OPENCHV dictcontent CLOSECHV
-
-dictcontent : kvaluepair COMMA dictcontent
-            | kvaluepair
-'''
 def calcObject(chaves, valor):
     dicionario = {chaves[-1]: valor}
     for chave in reversed(chaves[:-1]):
@@ -269,7 +218,6 @@ def p_error(p):
     else:
         #! Tenho de ver melhor em que situaçoes ocorre isto.
         print("Erro de sintaxe no EOF.")
-
     print("Execução interrompida!")
     exit(1)
 
