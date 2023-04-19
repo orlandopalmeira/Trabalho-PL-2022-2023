@@ -6,11 +6,19 @@ def remove_quotes(string):
         string = string.replace('\\"', '"').replace('\\\\','\\')
     else: # literal string
         pass
-    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string).lstrip("\n")
+    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
+    res = re.sub(r'^\n', '', res)
     return res
 
-def parse_bool(string):
-    return True if string == 'true' else False
+def remove_leb(text):
+    '''
+    Leb -> Line Ending Backslash
+    '''
+    regex = re.compile(r'\\[\s\n]+')
+    return re.sub(regex,'', text)
+
+def parse_bool(text):
+    return True if text == 'true' else False
     
 def find_column(token):
     text = token.lexer.lexdata
@@ -139,13 +147,16 @@ def t_RVALUE_EQUAL(t):
     r'='
     return t
 
+# Basic Multi-line
 def t_RVALUE_BMLSTRING(t):
     r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
     t.value = remove_quotes(t.value)
+    t.value = remove_leb(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
     return t
 
+# Literal Multi-line
 def t_RVALUE_LMLSTRING(t):
     R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
     t.value = remove_quotes(t.value)
@@ -169,7 +180,8 @@ def t_RVALUE_FLOAT(t):
     return t
 
 def t_RVALUE_INT(t):
-    r'(\+|\-)?\d+'
+    # r'(\+|\-)?\d+' # É permitido ter underscores entre os números
+    r'(\+|\-)?\d(?:\_?\d)*'
     t.value = int(t.value)
     t.lexer.pop_state()
     return t
@@ -226,6 +238,7 @@ def t_RARRAY_LOCALTIME(t):
 def t_RARRAY_BMLSTRING(t):
     r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
     t.value = remove_quotes(t.value)
+    t.value = remove_leb(t.value)
     t.type = 'STRING'
     return t
 
@@ -247,7 +260,8 @@ def t_RARRAY_FLOAT(t):
     return t
 
 def t_RARRAY_INT(t):
-    r'(\+|\-)?\d+'
+    # r'(\+|\-)?\d+'
+    r'(\+|\-)?\d(?:\_?\d)*'
     t.value = int(t.value)
     return t
 
