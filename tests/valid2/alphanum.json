@@ -1,0 +1,16 @@
+{
+  "000111": "leading",
+  "10e3": "false float",
+  "123": "num",
+  "2018_10": {
+    "001": 1
+  },
+  "34-11": 23,
+  "a-a-a": {
+    "_": false
+  },
+  "alpha": "a",
+  "one1two2": "mixed",
+  "under_score": "___",
+  "with-dash": "dashed"
+}
