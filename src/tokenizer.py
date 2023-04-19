@@ -17,6 +17,13 @@ def remove_leb(text):
     regex = re.compile(r'\\[\s\n]+')
     return re.sub(regex,'', text)
 
+def isValidInt(inteiro):
+    if inteiro > pow(2,63)-1 or inteiro < -pow(2,63):
+        print(f"Cannot parse BigInt {inteiro}!!")
+        exit()
+        return False
+    return True
+
 def parse_bool(text):
     return True if text == 'true' else False
     
@@ -27,7 +34,7 @@ def find_column(token):
 
 # Retorna a linha do token em questão
 def getline(token) -> str:
-    i:int = token.lineno
+    i = token.lineno
     text = token.lexer.lexdata
     lines = text.split('\n')
     return lines[i-1]
@@ -182,6 +189,7 @@ def t_RVALUE_FLOAT(t):
 def t_RVALUE_INTHEX(t):
     r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
     t.value = int(t.value, 16)
+    flag = isValidInt(t.value)
     t.type = "INT"
     t.lexer.pop_state()
     return t
@@ -189,6 +197,7 @@ def t_RVALUE_INTHEX(t):
 def t_RVALUE_INTOCT(t):
     r'0o[0-7](_?[0-7])+'
     t.value = int(t.value, 8)
+    flag = isValidInt(t.value)
     t.type = "INT"
     t.lexer.pop_state()
     return t
@@ -196,6 +205,7 @@ def t_RVALUE_INTOCT(t):
 def t_RVALUE_INTBIN(t):
     r'0b[01](_?[01])+'
     t.value = int(t.value, 2)
+    flag = isValidInt(t.value)
     t.type = "INT"
     t.lexer.pop_state()
     return t
@@ -203,6 +213,7 @@ def t_RVALUE_INTBIN(t):
 def t_RVALUE_INT(t):
     r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
     t.value = int(t.value)
+    flag = isValidInt(t.value)
     t.lexer.pop_state()
     return t
 
@@ -282,18 +293,21 @@ def t_RARRAY_FLOAT(t):
 def t_RARRAY_INTHEX(t):
     r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])+'
     t.value = int(t.value, 16)
+    flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
 def t_RARRAY_INTOCT(t):
     r'0o[0-7](_?[0-7])+'
     t.value = int(t.value, 8)
+    flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
 def t_RARRAY_INTBIN(t):
     r'0b[01](_?[01])+'
     t.value = int(t.value, 2)
+    flag = isValidInt(t.value)
     t.type = "INT"
     return t
 
@@ -301,6 +315,7 @@ def t_RARRAY_INT(t):
     # r'(\+|\-)?\d+'
     r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
     t.value = int(t.value)
+    flag = isValidInt(t.value)
     return t
 
 def t_RARRAY_BOOL(t):
