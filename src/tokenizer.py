@@ -75,7 +75,7 @@ def t_NEWLINE(t):
     return t
 
 def t_KEY(t):
-    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
+    r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)
@@ -129,14 +129,17 @@ def t_RVALUE_DOT(t):
     return t
 
 def t_RVALUE_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}Z'
-    t.value = t.value.replace(' ','T')
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}Z'
+    # t.value = t.value.replace(' ','T')
+    t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = t.value.replace('z','Z')
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[T ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = t.value.replace(' ','T')
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = t.value.replace('z','Z')
     t.lexer.pop_state()
     return t
 
@@ -251,11 +254,15 @@ def t_RVALUE_CLOSECHV(t):
 
 # RARRAY
 def t_RARRAY_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}Z'
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}Z'
+    t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = t.value.replace('z','Z')
     return t
 
 def t_RARRAY_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = t.value.replace('z','Z')
     return t
 
 def t_RARRAY_LOCALDATE(t):
@@ -353,7 +360,7 @@ def t_RARRAY_CLOSECHV(t):
 # RDICT
 def t_RDICT_KEY(t):
     # r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
-    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
+    r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)
