@@ -115,6 +115,7 @@ def p_10(p):
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
+    #! talvez por aqui código de adicionar o tablename a um set para posterior verificação de duplicate declaration of normaltable names
 
 ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
 def p_111(p):
