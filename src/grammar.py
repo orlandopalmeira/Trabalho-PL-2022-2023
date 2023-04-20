@@ -22,13 +22,21 @@ def calcObjectArrayTable(chaves, valor):
 
 def merge_dictionaries(dictionaries_list):
     result = {}
+    lastisArrayList = False
     for dictionary in dictionaries_list:
         for key, value in dictionary.items():
             if isinstance(value, dict) and key in result:
-                result[key] = merge_dictionaries([result[key], value])
+                if lastisArrayList:
+                    result[key][-1] = merge_dictionaries([result[key][-1], value])
+                else:
+                    result[key] = merge_dictionaries([result[key], value])
             elif isinstance(value, list) and key in result:
                 result[key] += value
             else:
+                if isinstance(value, list):
+                    lastisArrayList = True
+                else:
+                    lastisArrayList = False
                 result[key] = value
     return result
 
@@ -40,7 +48,7 @@ def find_column(token):
 
 # Retorna a linha do token em questão
 def getline(token) -> str:
-    i:int = token.lineno
+    i = token.lineno
     text = token.lexer.lexdata
     lines = text.split('\n')
     return lines[i-1]
@@ -51,9 +59,6 @@ def p_0(p):
 
 def p_1(p):
     'file : toml'
-    # with open(out_file,'w') as wf:
-    #     json.dump(p[1], wf, indent=2, ensure_ascii=False)
-    # print(f"\nResultado escrito no ficheiro {out_file}.")
     p.parser.result = p[1]
 
 def p_2(p):
@@ -61,6 +66,10 @@ def p_2(p):
     # p[0] = p[1]
     # p[0].update(p[2])
     p[0] = merge_dictionaries([p[1], p[2]])
+
+def p_233(p):
+    'toml : kvaluepairs'
+    p[0] = p[1]
 
 def p_3(p):
     'kvaluepairs : kvaluepair newlines kvaluepairs'
@@ -70,7 +79,7 @@ def p_4(p):
     'kvaluepairs : '
     p[0] = dict()
 
-def p_34(p):
+def p_34(p): ## só passa aqui quando for a ultima linha (key value pair)
     'kvaluepairs : kvaluepair'
     p[0] = p[1]
 
@@ -87,13 +96,13 @@ def p_7(p):
     p[0] = [p[1]]
 
 def p_8(p):
-    'tables : normaltable tables'
-    # p[0] = p[1]
-    # p[0].update(p[2])
+    # 'tables : normaltable tables'
+    'tables : tables normaltable'
     p[0] = merge_dictionaries([p[1],p[2]])
 
 def p_9(p):
-    'tables : arraytable tables'
+    # 'tables : arraytable tables'
+    'tables : tables arraytable'
     # (tableName,tableContent) = p[1].popitem()
     # if tableName in p[2]:
     #     p[2][tableName].append(tableContent)
@@ -103,8 +112,15 @@ def p_9(p):
     p[0] = merge_dictionaries([p[1],p[2]])
 
 def p_10(p):
-    'tables : '
-    p[0] = dict()
+    '''
+    tables : arraytable
+           | normaltable
+    '''
+    p[0] = p[1]
+
+# def p_1011(p):
+#     'tables : '
+#     p[0] = dict()
 
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
@@ -134,7 +150,6 @@ def p_16(p):
 def p_17(p):
     'value : STRING'
     p[0] = p[1]
-    # print(p[0])
 
 def p_18(p):
     'value : BOOL'
