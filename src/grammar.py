@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from tokenizer import tokens
-import json
+import aux
 import sys
 
 #! Evita os warnings de tokens não utilizados
@@ -32,6 +32,8 @@ def merge_dictionaries(dictionaries_list):
                     result[key] = merge_dictionaries([result[key], value])
             elif isinstance(value, list) and key in result:
                 result[key] += value
+            elif key in result: # verificação de duplicateKeys simples
+                raise Exception("Chave duplicada!")
             else:
                 if isinstance(value, list):
                     lastisArrayList = True
@@ -40,18 +42,6 @@ def merge_dictionaries(dictionaries_list):
                 result[key] = value
     return result
 
-##! Talvez meter esta função num sitio mais apropriado
-def find_column(token):
-    text = token.lexer.lexdata
-    line_start = text.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
-# Retorna a linha do token em questão
-def getline(token) -> str:
-    i = token.lineno
-    text = token.lexer.lexdata
-    lines = text.split('\n')
-    return lines[i-1]
 
 def p_0(p):
     'file : newlines toml'
@@ -79,7 +69,7 @@ def p_4(p):
     'kvaluepairs : '
     p[0] = dict()
 
-def p_34(p): ## só passa aqui quando for a ultima linha (key value pair)
+def p_45(p): ## só passa aqui quando for a ultima linha (key value pair)
     'kvaluepairs : kvaluepair'
     p[0] = p[1]
 
@@ -125,11 +115,20 @@ def p_10(p):
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
-    pass
+
+### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
+def p_111(p):
+    'normaltable : OPENPR tablename CLOSEPR'
+    p[0] = calcObject(p[2],{})
 
 def p_12(p):
     'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
     p[0] = calcObjectArrayTable(p[3],p[7])
+
+### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
+def p_122(p):
+    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR'
+    p[0] = calcObjectArrayTable(p[3],{})
 
 def p_13(p):
     'tablename : TABLE DOT tablename'
@@ -223,8 +222,8 @@ def p_newlines(t):
 def p_error(p):
     parser.success = False
     if p:
-        coluna = find_column(p)
-        line = getline(p)
+        coluna = aux.find_column(p)
+        line = aux.getline(p)
         print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
         print(f"Encontrado token '{p.value}' inesperado.")
         print(f"{line.rstrip()}")
@@ -232,6 +231,7 @@ def p_error(p):
 
     else:
         #! Tenho de ver melhor em que situaçoes ocorre isto.
+        # Meter um caret no final da ultima linha a indicar que algo se passa naquela zona
         print("Erro de sintaxe no EOF.")
     print("Execução interrompida!")
     exit(1)

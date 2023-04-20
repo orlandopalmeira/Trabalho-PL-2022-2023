@@ -1,5 +1,6 @@
 import ply.lex as lex
 import re
+import aux
 
 def remove_quotes(string):
     if string[0] == '"': # basic string
@@ -27,17 +28,6 @@ def isValidInt(inteiro):
 def parse_bool(text):
     return True if text == 'true' else False
     
-def find_column(token):
-    text = token.lexer.lexdata
-    line_start = text.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
-# Retorna a linha do token em questão
-def getline(token) -> str:
-    i = token.lineno
-    text = token.lexer.lexdata
-    lines = text.split('\n')
-    return lines[i-1]
 
 tokens = [
     'COMMENT',
@@ -398,8 +388,8 @@ def t_RDICT_CLOSECHV(t):
 t_ANY_ignore = '\t '
 
 def t_ANY_error(t):
-    coluna = find_column(t)
-    line = getline(t)
+    coluna = aux.find_column(t)
+    line = aux.getline(t)
     print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
     print(f"{line.rstrip()}")
     print(" " * (coluna - 1) + "^") #! esta lógica do apontador da coluna pode n funcionar mt bem devido a eventuais \n (ainda estou a averiguar)
