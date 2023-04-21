@@ -17,7 +17,8 @@ print(f"Ficheiro de output: {out_file}")
 print("\nA analisar..")
 
 with open(in_file) as rf:
-    parser.parse(rf.read())
-    with open(out_file, 'w') as wf:
-        json.dump(parser.result, wf, indent=2, ensure_ascii=False)
-        print(f"\nResultado escrito no ficheiro {out_file}.")
+    text = rf.read()
+parser.parse(text)
+with open(out_file, 'w') as wf:
+    json.dump(parser.result, wf, indent=2, ensure_ascii=False)
+    print(f"\nResultado escrito no ficheiro {out_file}.")
