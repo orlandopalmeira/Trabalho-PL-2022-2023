@@ -55,3 +55,4 @@ class Tests_float(unittest.TestCase):
             correct = json.load(f_result)
         test = parser.result
         self.assertEqual(test,correct)
+        

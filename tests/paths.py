@@ -96,7 +96,6 @@ valid9 = [
     ('./valid2/spec/comment-0.toml', './valid2/spec/comment-0.json'),
     ('./valid2/spec/float-0.toml', './valid2/spec/float-0.json'),
     ('./valid2/spec/float-1.toml', './valid2/spec/float-1.json'),
-    ('./valid2/spec/float-2.toml', './valid2/spec/float-2.json'),
     ('./valid2/spec/inline-table-0.toml', './valid2/spec/inline-table-0.json'),
     ('./valid2/spec/inline-table-1.toml', './valid2/spec/inline-table-1.json'),
     ('./valid2/spec/inline-table-2.toml', './valid2/spec/inline-table-2.json'),
@@ -134,7 +133,8 @@ valid9 = [
     ('./valid2/spec/table-6.toml', './valid2/spec/table-6.json'),
     ('./valid2/spec/table-7.toml', './valid2/spec/table-7.json'),
     ('./valid2/spec/table-8.toml', './valid2/spec/table-8.json'),
-    ('./valid2/spec/table-9.toml', './valid2/spec/table-9.json')
+    ('./valid2/spec/table-9.toml', './valid2/spec/table-9.json'),
+    ('./valid2/spec/float-2.toml', './valid2/spec/float-2.json')
 ]
 
 valid10 = [

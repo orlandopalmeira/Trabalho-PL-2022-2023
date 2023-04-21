@@ -6,7 +6,8 @@ import aux
 
 def remove_quotes(string):
     if string[0] == '"': # basic string
-        string = string.replace('\\"', '"').replace('\\\\','\\')
+        string = string.replace('\\"', '"').replace('\\\\','\\') #! vai ter de se acrescentar para os \n e \t tbm eu acho
+        # string = string.replace(r'\\(.)', '\1').replace('\\\\','\\') #! possivel resoluçao
     else: # literal string
         pass
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
@@ -67,7 +68,7 @@ def t_NEWLINE(t):
     return t
 
 def t_KEY(t):
-    r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
+    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)
@@ -99,8 +100,8 @@ def t_RTABLE_OPENPR(t):
     return t
 
 def t_RTABLE_TABLE(t):
-    # r'[\w\-]+|\"[\w\-\. ]+\"|\'[\w\-\. ]+\''
-    r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
+    # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
+    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     t.value = remove_quotes(t.value)
     return t
 
@@ -358,8 +359,8 @@ def t_RARRAY_CLOSECHV(t):
 
 # RDICT
 def t_RDICT_KEY(t):
-    # r'[\w\-]+|\"[\w\.\-]+\"|\'[\w\.\-]+\''
-    r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
+    # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
+    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)' #! change untested
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = remove_quotes(t.value)
