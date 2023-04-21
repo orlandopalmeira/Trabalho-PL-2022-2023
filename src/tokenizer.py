@@ -1,5 +1,7 @@
 import ply.lex as lex
 import re
+from dateutil.parser import parse as parseDateTime
+from datetime import datetime
 import aux
 
 def remove_quotes(string):
@@ -119,28 +121,31 @@ def t_RVALUE_DOT(t):
     return t
 
 def t_RVALUE_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}Z'
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
     # t.value = t.value.replace(' ','T')
-    t.value = re.sub(r'[Tt]',' ',t.value)
-    t.value = t.value.replace('z','Z')
+    # t.value = re.sub(r'[Tt]',' ',t.value)
+    # t.value = t.value.replace('z','Z')
+    t.value = str(parseDateTime(t.value))
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = re.sub(r'[Tt]',' ',t.value)
-    t.value = t.value.replace('z','Z')
+    # t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = str(parseDateTime(t.value))
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATE(t):
     r'\d{4}\-\d{2}\-\d{2}'
     t.lexer.pop_state()
+    t.value = str(parseDateTime(t.value).date())
     return t
 
 def t_RVALUE_LOCALTIME(t):
     r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
     t.lexer.pop_state()
+    t.value = str(parseDateTime(t.value).time())
     return t
 
 def t_RVALUE_EQUAL(t):
@@ -244,23 +249,26 @@ def t_RVALUE_CLOSECHV(t):
 
 # RARRAY
 def t_RARRAY_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}\-\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}Z'
-    t.value = re.sub(r'[Tt]',' ',t.value)
-    t.value = t.value.replace('z','Z')
+    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
+    # t.value = re.sub(r'[Tt]',' ',t.value)
+    # t.value = t.value.replace('z','Z')
+    t.value = str(parseDateTime(t.value))
     return t
 
 def t_RARRAY_LOCALDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = re.sub(r'[Tt]',' ',t.value)
-    t.value = t.value.replace('z','Z')
+    # t.value = re.sub(r'[Tt]',' ',t.value)
+    t.value = str(parseDateTime(t.value))
     return t
 
 def t_RARRAY_LOCALDATE(t):
     r'\d{4}\-\d{2}\-\d{2}'
+    t.value = str(parseDateTime(t.value).date())
     return t
 
 def t_RARRAY_LOCALTIME(t):
     r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+    t.value = str(parseDateTime(t.value).time())
     return t
 
 def t_RARRAY_BMLSTRING(t):

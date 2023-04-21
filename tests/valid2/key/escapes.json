@@ -1,0 +1,12 @@
+{
+  "\n": "newline",
+  "\"": "just a quote",
+  "\"quoted\"": {
+    "quote": true
+  },
+  "a.b": {
+    "À": {}
+  },
+  "backsp\b\b": {},
+  "À": "latin capital letter A with grave"
+}
