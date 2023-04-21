@@ -10,9 +10,10 @@ def remove_quotes(string):
         # string = string.replace(r'\\(.)', '\1').replace('\\\\','\\') #! possivel resoluçao
     else: # literal string
         pass
+    
     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
     res = re.sub(r'^\n', '', res)
-    return res
+    return res.encode().decode('unicode_escape')
 
 def remove_leb(text):
     '''
