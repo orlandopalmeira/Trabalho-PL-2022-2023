@@ -44,10 +44,11 @@ valid4 = [
 valid5 = [   
     ('./valid2/float/exponent.toml', './valid2/float/exponent.json'),
     ('./valid2/float/float.toml', './valid2/float/float.json'),
-    ('./valid2/float/inf-and-nan.toml', './valid2/float/inf-and-nan.json'),
     ('./valid2/float/long.toml', './valid2/float/long.json'),
     ('./valid2/float/underscore.toml', './valid2/float/underscore.json'),
-    ('./valid2/float/zero.toml', './valid2/float/zero.json')]
+    ('./valid2/float/zero.toml', './valid2/float/zero.json'),
+    ('./valid2/float/inf-and-nan.toml', './valid2/float/inf-and-nan.json')
+    ]
 
 valid6 = [
     ('./valid2/inline-table/array.toml', './valid2/inline-table/array.json'),

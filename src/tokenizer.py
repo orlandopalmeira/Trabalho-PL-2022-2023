@@ -179,7 +179,8 @@ def t_RVALUE_STRING(t):
 
 def t_RVALUE_FLOAT(t):
     # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
+    # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
     t.value = float(t.value)
     t.lexer.pop_state()
     return t
