@@ -201,7 +201,7 @@ def t_RVALUE_BMLSTRING(t):
 
 # Literal Multi-line
 def t_RVALUE_LMLSTRING(t):
-    R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
+    r'\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
     t.value = treat_LML_string(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
@@ -317,7 +317,7 @@ def t_RARRAY_BMLSTRING(t):
     return t
 
 def t_RARRAY_LMLSTRING(t):
-    R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
+    r'\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
     t.value = treat_LML_string(t.value)
     t.type = 'STRING'
     return t
