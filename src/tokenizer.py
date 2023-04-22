@@ -4,16 +4,53 @@ from dateutil.parser import parse as parseDateTime
 from datetime import datetime
 import aux
 
-def remove_quotes(string):
-    if string[0] == '"': # basic string
-        string = string.replace('\\"', '"').replace('\\\\','\\') #! vai ter de se acrescentar para os \n e \t tbm eu acho
-        # string = string.replace(r'\\(.)', '\1').replace('\\\\','\\') #! possivel resoluçao
-    else: # literal string
-        pass
+# def remove_quotes(string):
+#     if string[0] == '"': # basic string
+#         string = string.replace('\\"', '"').replace('\\\\','\\')
+#         string = string.encode().decode('unicode_escape')
+#     else: # literal string
+#         pass
     
-    res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
-    res = re.sub(r'^\n', '', res)
-    return res.encode().decode('unicode_escape')
+#     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
+#     # res = re.sub(r'^\n', '', res)
+#     return res
+
+def rem_quotes(text):
+    return re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', text)
+
+def treat_basic_string(text):
+    text = rem_quotes(text)
+    # text = text.replace('\\"', '"').replace('\\\\','\\')
+    text = text.encode().decode('unicode_escape')
+    return text
+
+def treat_literal_string(text):
+    text = rem_quotes(text)
+    return text
+
+def treat_single_string(text):
+    if text[0]== '"':
+        return treat_basic_string(text)
+    else:
+        return treat_literal_string(text)
+
+def treat_BML_string(text):
+    text = rem_quotes(text)
+    text = re.sub(r'^\n', '', text) # Faz trim do \n que esteja no inicio da frase
+    text = remove_leb(text)
+    # text = text.replace('\\"', '"').replace('\\\\','\\')
+    text = text.encode().decode('unicode_escape')
+    return text
+
+def treat_LML_string(text):
+    text = rem_quotes(text)
+    text = re.sub(r'^\n', '', text) # Faz trim do \n que esteja no inicio da frase
+    return text
+
+def treat_keys(text):
+    if text[0] == '"' or text[0] == "'":
+        text = treat_single_string(text)
+    return text
 
 def remove_leb(text):
     '''
@@ -72,7 +109,7 @@ def t_KEY(t):
     r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
-    t.value = remove_quotes(t.value)
+    t.value = treat_keys(t.value)
     t.lexer.push_state('RVALUE')
     return t
 
@@ -103,7 +140,7 @@ def t_RTABLE_OPENPR(t):
 def t_RTABLE_TABLE(t):
     # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
     r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
-    t.value = remove_quotes(t.value)
+    t.value = treat_keys(t.value)
     return t
 
 def t_RTABLE_DOT(t):
@@ -157,8 +194,7 @@ def t_RVALUE_EQUAL(t):
 # Basic Multi-line
 def t_RVALUE_BMLSTRING(t):
     r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
-    t.value = remove_quotes(t.value)
-    t.value = remove_leb(t.value)
+    t.value = treat_BML_string(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
     return t
@@ -166,7 +202,7 @@ def t_RVALUE_BMLSTRING(t):
 # Literal Multi-line
 def t_RVALUE_LMLSTRING(t):
     R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
-    t.value = remove_quotes(t.value)
+    t.value = treat_LML_string(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
     return t
@@ -174,7 +210,7 @@ def t_RVALUE_LMLSTRING(t):
 def t_RVALUE_STRING(t):
     # r'(""")(?:"){0,2}[^\1]*?"""(?:"){0,2}|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
-    t.value = remove_quotes(t.value)
+    t.value = treat_single_string(t.value)
     t.lexer.pop_state()
     return t
 
@@ -276,20 +312,19 @@ def t_RARRAY_LOCALTIME(t):
 
 def t_RARRAY_BMLSTRING(t):
     r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
-    t.value = remove_quotes(t.value)
-    t.value = remove_leb(t.value)
+    t.value = treat_BML_string(t.value)
     t.type = 'STRING'
     return t
 
 def t_RARRAY_LMLSTRING(t):
     R'\'\'\'(?:\'){0,2}(?:(?=(?P<t1>\\?))(?P=t1)(?:.|\n))*?\'\'\'(?:\'){0,2}'
-    t.value = remove_quotes(t.value)
+    t.value = treat_LML_string(t.value)
     t.type = 'STRING'
     return t
 
 def t_RARRAY_STRING(t):
     r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
-    t.value = remove_quotes(t.value)
+    t.value = treat_single_string(t.value)
     return t
 
 def t_RARRAY_FLOAT(t):
@@ -361,10 +396,11 @@ def t_RARRAY_CLOSECHV(t):
 # RDICT
 def t_RDICT_KEY(t):
     # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
-    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)' #! change untested
+    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
-    t.value = remove_quotes(t.value)
+    t.value = treat_keys(t.value)
+    # t.value = remove_quotes(t.value)
     t.lexer.push_state('RVALUE')
     return t
 
