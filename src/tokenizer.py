@@ -193,7 +193,7 @@ def t_RVALUE_EQUAL(t):
 
 # Basic Multi-line
 def t_RVALUE_BMLSTRING(t):
-    r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+    r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
     t.value = treat_BML_string(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
@@ -201,7 +201,7 @@ def t_RVALUE_BMLSTRING(t):
 
 # Literal Multi-line
 def t_RVALUE_LMLSTRING(t):
-    r'\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
+    r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
     t.value = treat_LML_string(t.value)
     t.lexer.pop_state()
     t.type = 'STRING'
@@ -311,13 +311,13 @@ def t_RARRAY_LOCALTIME(t):
     return t
 
 def t_RARRAY_BMLSTRING(t):
-    r'"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+    r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
     t.value = treat_BML_string(t.value)
     t.type = 'STRING'
     return t
 
 def t_RARRAY_LMLSTRING(t):
-    r'\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
+    r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
     t.value = treat_LML_string(t.value)
     t.type = 'STRING'
     return t
