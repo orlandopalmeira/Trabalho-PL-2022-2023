@@ -106,7 +106,7 @@ def t_NEWLINE(t):
     return t
 
 def t_KEY(t):
-    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = treat_keys(t.value)
@@ -139,7 +139,7 @@ def t_RTABLE_OPENPR(t):
 
 def t_RTABLE_TABLE(t):
     # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
-    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     t.value = treat_keys(t.value)
     return t
 
@@ -209,7 +209,7 @@ def t_RVALUE_LMLSTRING(t):
 
 def t_RVALUE_STRING(t):
     # r'(""")(?:"){0,2}[^\1]*?"""(?:"){0,2}|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
-    r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     t.value = treat_single_string(t.value)
     t.lexer.pop_state()
     return t
@@ -323,7 +323,7 @@ def t_RARRAY_LMLSTRING(t):
     return t
 
 def t_RARRAY_STRING(t):
-    r'(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     t.value = treat_single_string(t.value)
     return t
 
@@ -396,7 +396,7 @@ def t_RARRAY_CLOSECHV(t):
 # RDICT
 def t_RDICT_KEY(t):
     # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
-    r'[\w\-]+|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
+    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     # t.lexer.push_state(t.lexer.lexstate)
     # t.lexer.begin('RVALUE')
     t.value = treat_keys(t.value)
