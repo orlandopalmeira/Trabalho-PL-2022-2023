@@ -1,6 +1,7 @@
 import sys
 import json
 from grammar import parser
+from myExc import myException
 
 ### Main
 # python3 program.py (<ficheiro_input>) (<ficheiro_output>)
@@ -18,7 +19,16 @@ print("\nA analisar..")
 
 with open(in_file) as rf:
     text = rf.read()
-parser.parse(text)
-with open(out_file, 'w') as wf:
-    json.dump(parser.result, wf, indent=2, ensure_ascii=False)
-    print(f"\nResultado escrito no ficheiro {out_file}.")
+
+try:
+    parser.parse(text)
+except myException as e:
+    # Faz o tratamento da exceção tendo em conta o conteúdo do ficheiro de entrada
+    e.treat_exc(text)
+    # Printa a mensagem de erro
+    e.printErrorMessage()
+    # print("Execução interrompida!")##
+else:
+    with open(out_file, 'w') as wf:
+        json.dump(parser.result, wf, indent=2, ensure_ascii=False)
+        print(f"\nResultado escrito no ficheiro {out_file}.")

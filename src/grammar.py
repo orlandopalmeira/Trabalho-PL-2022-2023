@@ -2,6 +2,7 @@ import ply.yacc as yacc
 from tokenizer import tokens
 import aux
 import sys
+from myExc import myException
 
 #! Evita os warnings de tokens não utilizados
 not_used_tokens = ['COMMENT','BMLSTRING','LMLSTRING']
@@ -20,27 +21,30 @@ def calcObjectArrayTable(chaves, valor):
         dicionario = {chave: dicionario}
     return dicionario
 
-def merge_dictionaries(dictionaries_list):
-    result = {}
-    lastisArrayList = False
-    for dictionary in dictionaries_list:
-        for key, value in dictionary.items():
-            if isinstance(value, dict) and key in result:
-                if lastisArrayList:
-                    result[key][-1] = merge_dictionaries([result[key][-1], value])
+def merge_dictionaries(dictionaries_list, chaveant = None):
+    try:
+        result = {}
+        lastisArrayList = False
+        for dictionary in dictionaries_list:
+            for key, value in dictionary.items():
+                if isinstance(value, dict) and key in result:
+                    if lastisArrayList:
+                        result[key][-1] = merge_dictionaries([result[key][-1], value], key)
+                    else:
+                        result[key] = merge_dictionaries([result[key], value], key)
+                elif isinstance(value, list) and key in result:
+                    result[key] += value
+                elif key in result: # verificação de duplicateKeys simples
+                    raise myException(f"Erro: Chave \"{key}\" duplicada!", flag = "DUPKEY")
                 else:
-                    result[key] = merge_dictionaries([result[key], value])
-            elif isinstance(value, list) and key in result:
-                result[key] += value
-            elif key in result: # verificação de duplicateKeys simples
-                raise Exception("Chave duplicada!")
-            else:
-                if isinstance(value, list):
-                    lastisArrayList = True
-                else:
-                    lastisArrayList = False
-                result[key] = value
-    return result
+                    if isinstance(value, list):
+                        lastisArrayList = True
+                    else:
+                        lastisArrayList = False
+                    result[key] = value
+        return result
+    except AttributeError as exc:
+        raise myException(f"Erro de atribuição de valor na chave \"{chaveant}\".")
 
 
 def p_0(p):
@@ -108,14 +112,11 @@ def p_10(p):
     '''
     p[0] = p[1]
 
-# def p_1011(p):
-#     'tables : '
-#     p[0] = dict()
 
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
-    #! talvez por aqui código de adicionar o tablename a um set para posterior verificação de duplicate declaration of normaltable names
+    ## talvez por aqui código de adicionar o tablename a um set para posterior verificação de duplicate declaration of normaltable names
 
 ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
 def p_111(p):
@@ -225,17 +226,20 @@ def p_error(p):
     if p:
         coluna = aux.find_column(p)
         line = aux.getline(p)
-        print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
-        print(f"Encontrado token '{p.value}' inesperado.")
-        print(f"{line.rstrip()}")
-        print(" " * (coluna - 1) + "^")
-
+        message = f"""
+Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.
+Encontrado token '{p.value}' inesperado.
+{line.rstrip()}
+{" " * (coluna - 1)}^
+"""
+        raise myException(message)
+        # print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
+        # print(f"Encontrado token '{p.value}' inesperado.")
+        # print(f"{line.rstrip()}")
+        # print(" " * (coluna - 1) + "^")
     else:
-        #! Tenho de ver melhor em que situaçoes ocorre isto.
-        # Meter um caret no final da ultima linha a indicar que algo se passa naquela zona
-        print("Erro de sintaxe no EOF.")
-    print("Execução interrompida!")
-    exit(1)
+        # print("Erro de sintaxe no EOF.")
+        raise myException(flag="EOF")
 
 parser = yacc.yacc(debug=True)
 parser.success = True
