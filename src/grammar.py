@@ -35,7 +35,7 @@ def merge_dictionaries(dictionaries_list, chaveant = None):
                 elif isinstance(value, list) and key in result:
                     result[key] += value
                 elif key in result: # verificação de duplicateKeys simples
-                    raise myException(f"Erro: Chave \"{key}\" duplicada!", flag = "DUPKEY")
+                    raise myException(f"Erro: Chave \"{key}\" duplicada!", dupkey={"key":key})
                 else:
                     if isinstance(value, list):
                         lastisArrayList = True
@@ -67,7 +67,12 @@ def p_233(p):
 
 def p_3(p):
     'kvaluepairs : kvaluepair newlines kvaluepairs'
-    p[0] = merge_dictionaries([p[1], p[3]])
+    try:
+        p[0] = merge_dictionaries([p[1], p[3]])
+    except myException as e:
+        e.set_search_init(p.lineno(1))
+        raise e
+
 
 def p_4(p):
     'kvaluepairs : '
@@ -80,6 +85,7 @@ def p_45(p): ## só passa aqui quando for a ultima linha (key value pair)
 def p_5(p):
     'kvaluepair : key EQUAL value'
     p[0] = calcObject(p[1],p[3])
+    p.set_lineno(0, p.lineno(2))
 
 def p_6(p):
     'key : KEY DOT key'
@@ -205,7 +211,11 @@ def p_29(p):
 
 def p_30(p):
     'dictionary : OPENCHV dictcontent CLOSECHV'
-    p[0] = dict(merge_dictionaries(p[2]))
+    try:
+        p[0] = dict(merge_dictionaries(p[2]))
+    except myException as e:
+        e.set_search_init(p.lineno(1))
+        raise e
 
 def p_31(p):
     'dictcontent : kvaluepair COMMA dictcontent'
