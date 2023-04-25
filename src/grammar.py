@@ -2,9 +2,11 @@ import ply.yacc as yacc
 from tokenizer import tokens
 import aux
 import sys
-from myExc import myException
+from myExceptions import *
+# from myExceptions import myException
+# from myExceptions import dupKey
 
-#! Evita os warnings de tokens não utilizados
+# Evita os warnings de tokens não utilizados
 not_used_tokens = ['COMMENT','BMLSTRING','LMLSTRING']
 for tok in not_used_tokens:
     tokens.remove(tok)
@@ -22,29 +24,36 @@ def calcObjectArrayTable(chaves, valor):
     return dicionario
 
 def merge_dictionaries(dictionaries_list, chaveant = None):
-    try:
-        result = {}
-        lastisArrayList = False
-        for dictionary in dictionaries_list:
-            for key, value in dictionary.items():
-                if isinstance(value, dict) and key in result:
+    '''
+    chaveant -> Para saber qual chave teve o problema de atribuição de valor
+    lineno -> Para saber a linha do elemento que foi adicionado, aquando um erro
+    lexpos -> Para saber a lexpos do elemento que foi adicionado, aquando um erro
+    '''
+
+    result = {}
+    lastisArrayList = False
+    for dictionary in dictionaries_list:
+        for key, value in dictionary.items():
+            if isinstance(value, dict) and key in result:
+                try:
                     if lastisArrayList:
                         result[key][-1] = merge_dictionaries([result[key][-1], value], key)
                     else:
                         result[key] = merge_dictionaries([result[key], value], key)
-                elif isinstance(value, list) and key in result:
-                    result[key] += value
-                elif key in result: # verificação de duplicateKeys simples
-                    raise myException(f"Erro: Chave \"{key}\" duplicada!", dupkey={"key":key})
+                except AttributeError:
+                    raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{chaveant}\".", wrong_key = chaveant)
+            elif isinstance(value, list) and key in result:
+                result[key] += value
+            elif key in result: # verificação de duplicateKeys simples
+                raise dupKey(f"Erro: Chave \"{key}\" duplicada!", dup_key = key)
+            else:
+                if isinstance(value, list):
+                    lastisArrayList = True
                 else:
-                    if isinstance(value, list):
-                        lastisArrayList = True
-                    else:
-                        lastisArrayList = False
-                    result[key] = value
-        return result
-    except AttributeError as exc:
-        raise myException(f"Erro de atribuição de valor na chave \"{chaveant}\".")
+                    lastisArrayList = False
+                result[key] = value
+    return result
+    
 
 
 def p_0(p):
@@ -57,59 +66,72 @@ def p_1(p):
 
 def p_2(p):
     'toml : kvaluepairs tables'
-    # p[0] = p[1]
-    # p[0].update(p[2])
     p[0] = merge_dictionaries([p[1], p[2]])
 
 def p_233(p):
-    'toml : kvaluepairs'
+    '''
+    toml : kvaluepairs
+         | tables
+    '''
     p[0] = p[1]
 
+def p_empty_file(p):
+    '''
+    toml : 
+    '''
+    p[0] = {}
+
 def p_3(p):
-    'kvaluepairs : kvaluepair newlines kvaluepairs'
+    '''
+    kvaluepairs : kvaluepairs kvaluepair newlines
+                | kvaluepairs kvaluepair
+    '''
     try:
-        p[0] = merge_dictionaries([p[1], p[3]])
+        p[0] = merge_dictionaries([p[1], p[2]])
     except myException as e:
-        e.set_search_init(p.lineno(1))
+        e.set_lineno(p.lineno(2))
+        e.set_lexpos(p.lexpos(2))
         raise e
 
 
-def p_4(p):
-    'kvaluepairs : '
-    p[0] = dict()
+#* Estava a criar conflitos *#
+# def p_4(p):
+#     'kvaluepairs : '
+#     p[0] = dict()
 
-def p_45(p): ## só passa aqui quando for a ultima linha (key value pair)
-    'kvaluepairs : kvaluepair'
+def p_45(p): 
+    '''kvaluepairs : kvaluepair newlines
+                   | kvaluepair
+    '''
     p[0] = p[1]
 
 def p_5(p):
     'kvaluepair : key EQUAL value'
     p[0] = calcObject(p[1],p[3])
-    p.set_lineno(0, p.lineno(2))
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
 
 def p_6(p):
     'key : KEY DOT key'
     p[0] = [p[1]] + p[3]
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
 
 def p_7(p):
     'key : KEY'
     p[0] = [p[1]]
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
 
 def p_8(p):
-    # 'tables : normaltable tables'
     'tables : tables normaltable'
     p[0] = merge_dictionaries([p[1],p[2]])
+    #! Tentar meter aqui tracking
 
 def p_9(p):
-    # 'tables : arraytable tables'
     'tables : tables arraytable'
-    # (tableName,tableContent) = p[1].popitem()
-    # if tableName in p[2]:
-    #     p[2][tableName].append(tableContent)
-    # else:
-    #     p[2][tableName] = [tableContent]
-    # p[0] = p[2]
     p[0] = merge_dictionaries([p[1],p[2]])
+    #! Tentar meter aqui tracking
 
 def p_10(p):
     '''
@@ -122,20 +144,23 @@ def p_10(p):
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
-    ## talvez por aqui código de adicionar o tablename a um set para posterior verificação de duplicate declaration of normaltable names
 
-### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
+### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
 def p_111(p):
-    'normaltable : OPENPR tablename CLOSEPR'
+    '''normaltable : OPENPR tablename CLOSEPR newlines
+                   | OPENPR tablename CLOSEPR '''
     p[0] = calcObject(p[2],{})
 
 def p_12(p):
     'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
     p[0] = calcObjectArrayTable(p[3],p[7])
 
-### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro
+### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
 def p_122(p):
-    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR'
+    '''
+    arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines
+               | OPENPR OPENPR tablename CLOSEPR CLOSEPR 
+    '''
     p[0] = calcObjectArrayTable(p[3],{})
 
 def p_13(p):
@@ -211,19 +236,24 @@ def p_29(p):
 
 def p_30(p):
     'dictionary : OPENCHV dictcontent CLOSECHV'
-    try:
-        p[0] = dict(merge_dictionaries(p[2]))
-    except myException as e:
-        e.set_search_init(p.lineno(1))
-        raise e
+    # p[0] = dict(merge_dictionaries(p[2]))
+    p[0] = p[2]
 
 def p_31(p):
-    'dictcontent : kvaluepair COMMA dictcontent'
-    p[0] = [p[1]] + p[3]
+    'dictcontent : dictcontent COMMA kvaluepair'
+    # p[0] = [p[1]] + p[3]
+    try:
+        p[0] = merge_dictionaries([p[1], p[3]])
+    except myException as e:
+        e.set_lineno(p.lineno(3))
+        e.set_lexpos(p.lexpos(3))
+        raise e
 
 def p_32(p):
     'dictcontent : kvaluepair'
-    p[0] = [p[1]]
+    p[0] = p[1]
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
 
 def p_newlines(t):
     '''
@@ -232,24 +262,23 @@ def p_newlines(t):
     '''
 
 def p_error(p):
-    parser.success = False
-    if p:
-        coluna = aux.find_column(p)
-        line = aux.getline(p)
-        message = f"""
-Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.
-Encontrado token '{p.value}' inesperado.
-{line.rstrip()}
-{" " * (coluna - 1)}^
-"""
-        raise myException(message)
-        # print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
-        # print(f"Encontrado token '{p.value}' inesperado.")
-        # print(f"{line.rstrip()}")
-        # print(" " * (coluna - 1) + "^")
-    else:
-        # print("Erro de sintaxe no EOF.")
-        raise myException(flag="EOF")
+#     if p:
+#         coluna = aux.find_column(p)
+#         line = aux.getline(p)
+#         message = f"""
+# Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.
+# Encontrado token '{p.value}' inesperado.
+# {line.rstrip()}
+# {" " * (coluna - 1)}^
+# """
+#         raise myException(message)
+#         # print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
+#         # print(f"Encontrado token '{p.value}' inesperado.")
+#         # print(f"{line.rstrip()}")
+#         # print(" " * (coluna - 1) + "^")
+#     else:
+#         # print("Erro de sintaxe no EOF.")
+#         raise myException(flag="EOF")
+    raise parsingError(token = p)
 
 parser = yacc.yacc(debug=True)
-parser.success = True

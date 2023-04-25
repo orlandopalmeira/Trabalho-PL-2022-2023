@@ -1,7 +1,7 @@
 import sys
 import json
 from grammar import parser
-from myExc import myException
+from myExceptions import *
 
 ### Main
 # python3 program.py (<ficheiro_input>) (<ficheiro_output>)
@@ -23,10 +23,11 @@ with open(in_file) as rf:
 try:
     parser.parse(text)
 except myException as e:
-    # Faz o tratamento da exceção tendo em conta o conteúdo do ficheiro de entrada
-    e.treat_exc(text)
-    # Printa a mensagem de erro
-    e.printErrorMessage()
+
+    e.input_text(text)
+
+    e.printMessage()
+
     # print("Execução interrompida!")##
 else:
     with open(out_file, 'w') as wf:
