@@ -1,6 +1,5 @@
 import re
-from abc import ABC, abstractmethod # apenas para definir uma função abstrata
-# from aux import *
+from abc import ABC, abstractmethod # apenas para definir uma classe abstrata
 
 def find_column(text, lexpos):
     '''
@@ -10,7 +9,7 @@ def find_column(text, lexpos):
     return (lexpos - line_start)
 
 # Exceção Pai para definir a nossa hierarquia de exceçoes
-class myException(Exception):
+class myException(ABC, Exception):
 
     def __init__(self, message = "Erro de parsing.", lineno = None, lexpos = None):
         self.message = message

@@ -2,18 +2,25 @@ import ply.lex as lex
 import re
 from dateutil.parser import parse as parseDateTime
 from datetime import datetime
-import aux
 
-# def remove_quotes(string):
-#     if string[0] == '"': # basic string
-#         string = string.replace('\\"', '"').replace('\\\\','\\')
-#         string = string.encode().decode('unicode_escape')
-#     else: # literal string
-#         pass
-    
-#     res = re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', string)
-#     # res = re.sub(r'^\n', '', res)
-#     return res
+
+def find_column(token):
+    '''
+    Retorna o número da coluna em que o token se encontra na linha.
+    '''
+    text = token.lexer.lexdata
+    line_start = text.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+def getline(token, i = None) -> str:
+    '''
+    Retorna a linha do token dado como argumento, podendo ser especificado um índice, opcionalmente.
+    '''
+    if not i:
+        i = token.lineno - 1
+    text = token.lexer.lexdata
+    lines = text.split('\n')
+    return lines[i]
 
 def rem_quotes(text):
     return re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', text)
@@ -435,18 +442,16 @@ def t_RDICT_CLOSECHV(t):
 t_ANY_ignore = '\t '
 
 def t_ANY_error(t):
-    coluna = aux.find_column(t)
-    line = aux.getline(t)
+    coluna = find_column(t)
+    line = getline(t)
     print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
     print(f"{line.rstrip()}")
-    print(" " * (coluna - 1) + "^") #! esta lógica do apontador da coluna pode n funcionar mt bem devido a eventuais \n (ainda estou a averiguar)
+    print(" " * (coluna - 1) + "^")
     print("Execução interrompida!")
     exit(1)
 
 def t_ANY_COMMENT(t):
     r'\#.*'
-    # arr = re.findall(r'\n', t.value)
-    # t.lexer.lineno += len(arr)
 
 def t_ANY_newline(t):
     r'\n+'

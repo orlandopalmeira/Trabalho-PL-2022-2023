@@ -1,10 +1,6 @@
 import ply.yacc as yacc
 from tokenizer import tokens
-import aux
-import sys
 from myExceptions import *
-# from myExceptions import myException
-# from myExceptions import dupKey
 
 # Evita os warnings de tokens não utilizados
 not_used_tokens = ['COMMENT','BMLSTRING','LMLSTRING']
@@ -41,7 +37,7 @@ def merge_dictionaries(dictionaries_list, chaveant = None):
                     else:
                         result[key] = merge_dictionaries([result[key], value], key)
                 except AttributeError:
-                    raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{chaveant}\".", wrong_key = chaveant)
+                    raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
             elif isinstance(value, list) and key in result:
                 result[key] += value
             elif key in result: # verificação de duplicateKeys simples
