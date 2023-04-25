@@ -111,5 +111,5 @@ Encontrado token '{value}' inesperado.
 Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna}.
 Fim de ficheiro inesperado.
   {line.rstrip()}
-  {" " * (coluna - 1)}^\
+  {" " * (coluna)}^\
 """

@@ -22,8 +22,6 @@ def calcObjectArrayTable(chaves, valor):
 def merge_dictionaries(dictionaries_list, chaveant = None):
     '''
     chaveant -> Para saber qual chave teve o problema de atribuição de valor
-    lineno -> Para saber a linha do elemento que foi adicionado, aquando um erro
-    lexpos -> Para saber a lexpos do elemento que foi adicionado, aquando um erro
     '''
 
     result = {}
