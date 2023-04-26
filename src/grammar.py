@@ -67,9 +67,12 @@ def merge_tables(dictionaries_list):
                     if lastisArrayList:
                         result[key][-1] = merge_tables([result[key][-1], value])
                     else:
-                        result[key] = merge_tables([result[key], value])
+                        # if not (isFinal(result[key]) and isFinal(value)):
+                            result[key] = merge_tables([result[key], value])
+                        # else:
+                        #     raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
                 except AttributeError:
-                    raise InvalidAtrib(f"Erro de reatribuição de valor na chave \"{key}\".", wrong_key = key)
+                    raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
             elif isinstance(value, list) and key in result:
                 result[key] += value
             elif key in result: # verificação de duplicateKeys simples
