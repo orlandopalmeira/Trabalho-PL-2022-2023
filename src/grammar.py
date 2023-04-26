@@ -19,10 +19,7 @@ def calcObjectArrayTable(chaves, valor):
         dicionario = {chave: dicionario}
     return dicionario
 
-def merge_dictionaries(dictionaries_list, chaveant = None):
-    '''
-    chaveant -> Para saber qual chave teve o problema de atribuição de valor
-    '''
+def merge_dictionaries(dictionaries_list):
 
     result = {}
     lastisArrayList = False
@@ -31,11 +28,48 @@ def merge_dictionaries(dictionaries_list, chaveant = None):
             if isinstance(value, dict) and key in result:
                 try:
                     if lastisArrayList:
-                        result[key][-1] = merge_dictionaries([result[key][-1], value], key)
+                        result[key][-1] = merge_dictionaries([result[key][-1], value])
                     else:
-                        result[key] = merge_dictionaries([result[key], value], key)
+                        result[key] = merge_dictionaries([result[key], value])
                 except AttributeError:
                     raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
+            elif isinstance(value, list) and key in result:
+                result[key] += value
+            elif key in result: # verificação de duplicateKeys simples
+                raise dupKey(f"Erro: Chave \"{key}\" duplicada!", dup_key = key)
+            else:
+                if isinstance(value, list):
+                    lastisArrayList = True
+                else:
+                    lastisArrayList = False
+                result[key] = value
+    return result
+    
+# Unused
+def isFinal(objeto):
+    '''
+    Verifica se um objeto é {key: value} ou {key: [value]} em que value não é um dicionário.
+    '''
+    if isinstance(objeto, dict):
+        for _,value in objeto.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                return False
+    return True
+
+def merge_tables(dictionaries_list):
+
+    result = {}
+    lastisArrayList = False
+    for dictionary in dictionaries_list:
+        for key, value in dictionary.items():
+            if isinstance(value, dict) and key in result:
+                try:
+                    if lastisArrayList:
+                        result[key][-1] = merge_tables([result[key][-1], value])
+                    else:
+                        result[key] = merge_tables([result[key], value])
+                except AttributeError:
+                    raise InvalidAtrib(f"Erro de reatribuição de valor na chave \"{key}\".", wrong_key = key)
             elif isinstance(value, list) and key in result:
                 result[key] += value
             elif key in result: # verificação de duplicateKeys simples
@@ -119,12 +153,14 @@ def p_7(p):
 
 def p_8(p):
     'tables : tables normaltable'
-    p[0] = merge_dictionaries([p[1],p[2]])
+    # p[0] = merge_dictionaries([p[1],p[2]])
+    p[0] = merge_tables([p[1],p[2]])
     #! Tentar meter aqui tracking
 
 def p_9(p):
     'tables : tables arraytable'
-    p[0] = merge_dictionaries([p[1],p[2]])
+    # p[0] = merge_dictionaries([p[1],p[2]])
+    p[0] = merge_tables([p[1],p[2]])
     #! Tentar meter aqui tracking
 
 def p_10(p):

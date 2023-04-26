@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
 
 print(f"Ficheiro de input: {in_file}")
 print(f"Ficheiro de output: {out_file}")
-print("\nA analisar..")
+print("\nA analisar..\n")
 
 with open(in_file) as rf:
     text = rf.read()
@@ -31,5 +31,8 @@ except myException as e:
     # print("Execução interrompida!")##
 else:
     with open(out_file, 'w') as wf:
+        # Printa na consola direto (DEBUG)
+        print(json.dumps(parser.result, indent=2, ensure_ascii=False))##
+
         json.dump(parser.result, wf, indent=2, ensure_ascii=False)
         print(f"\nResultado escrito no ficheiro {out_file}.")
