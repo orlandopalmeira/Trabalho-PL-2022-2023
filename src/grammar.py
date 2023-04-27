@@ -70,11 +70,14 @@ def merge_tables(dictionaries_list):
                         if not (isFinal(result[key]) and isFinal(value)):
                             result[key] = merge_tables([result[key], value])
                         else:
-                            raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
+                            raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key)
                 except AttributeError:
-                    raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
+                    raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key, expected_type="table", value = value) #! preciso de testar melhor esta condiçao.
             elif isinstance(value, list) and key in result:
-                result[key] += value
+                if isinstance(result[key], list):
+                    result[key] += value
+                else:
+                    raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key, expected_type="table", value = value)
             elif key in result: # verificação de duplicateKeys simples
                 raise dupKey(f"Erro: Chave \"{key}\" duplicada!", dup_key = key)
             else:
@@ -125,11 +128,6 @@ def p_3(p):
         raise e
 
 
-#* Estava a criar conflitos *#
-# def p_4(p):
-#     'kvaluepairs : '
-#     p[0] = dict()
-
 def p_45(p): 
     '''kvaluepairs : kvaluepair newlines
                    | kvaluepair
@@ -157,14 +155,20 @@ def p_7(p):
 def p_8(p):
     'tables : tables normaltable'
     # p[0] = merge_dictionaries([p[1],p[2]])
-    p[0] = merge_tables([p[1],p[2]])
-    #! Tentar meter aqui tracking
+    try:
+        p[0] = merge_tables([p[1],p[2]])
+    except myException as exc:
+        exc.set_linetable(p.lineno(2))
+        raise exc
 
 def p_9(p):
     'tables : tables arraytable'
     # p[0] = merge_dictionaries([p[1],p[2]])
-    p[0] = merge_tables([p[1],p[2]])
-    #! Tentar meter aqui tracking
+    try:
+        p[0] = merge_tables([p[1],p[2]])
+    except myException as exc:
+        exc.set_linetable(p.lineno(2))
+        raise exc
 
 def p_10(p):
     '''
@@ -177,16 +181,19 @@ def p_10(p):
 def p_11(p):
     'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
     p[0] = calcObject(p[2],p[5])
+    p.set_lineno(0, p.lineno(2))
 
 ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
 def p_111(p):
     '''normaltable : OPENPR tablename CLOSEPR newlines
                    | OPENPR tablename CLOSEPR '''
     p[0] = calcObject(p[2],{})
+    p.set_lineno(0, p.lineno(2))
 
 def p_12(p):
     'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
     p[0] = calcObjectArrayTable(p[3],p[7])
+    p.set_lineno(0, p.lineno(3))
 
 ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
 def p_122(p):
@@ -195,14 +202,17 @@ def p_122(p):
                | OPENPR OPENPR tablename CLOSEPR CLOSEPR 
     '''
     p[0] = calcObjectArrayTable(p[3],{})
+    p.set_lineno(0, p.lineno(3))
 
 def p_13(p):
     'tablename : TABLE DOT tablename'
     p[0] = [p[1]] + p[3]
+    p.set_lineno(0, p.lineno(1))
 
 def p_14(p):
     'tablename : TABLE'
     p[0] = [p[1]]
+    p.set_lineno(0, p.lineno(1))
 
 def p_15(p):
     'value : INT'

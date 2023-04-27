@@ -11,10 +11,11 @@ def find_column(text, lexpos):
 # Exceção Pai para definir a nossa hierarquia de exceçoes
 class myException(ABC, Exception):
 
-    def __init__(self, message = "Erro de parsing.", lineno = None, lexpos = None):
+    def __init__(self, message = "Erro de parsing.", lineno = None, lexpos = None, linetable = None):
         self.message = message
         self.lineno = lineno
         self.lexpos = lexpos
+        self.linetable = linetable
         super().__init__(self.message)
 
     def set_lineno(self, lineno):
@@ -22,6 +23,9 @@ class myException(ABC, Exception):
     
     def set_lexpos(self, lexpos):
         self.lexpos = lexpos
+    
+    def set_linetable(self, linetable):
+        self.linetable = linetable
 
     def input_text(self, text):
         # Chama a respetiva função de criação de mensagem de erro.
@@ -37,14 +41,20 @@ class myException(ABC, Exception):
 
 class dupKey(myException):
 
-    def __init__(self, message="Erro de parsing.", dup_key = None, lineno = None, lexpos = None):
+    def __init__(self, message="Erro de parsing.", dup_key = None, lineno = None, lexpos = None, linetable = None):
         self.dup_key = dup_key
-        super().__init__(message, lineno=lineno, lexpos=lexpos)
+        super().__init__(message, lineno=lineno, lexpos=lexpos, linetable=linetable)
 
     def create_message(self, file_text):
         lineno = self.lineno
+        linetable = self.linetable
         dup_key = self.dup_key
-        if dup_key and lineno and self.lexpos:
+        if dup_key and linetable:
+            self.message=f"""
+Erro de parsing: sintaxe inválida na tabela da linha {linetable}.
+Encontrada chave \"{dup_key}\" duplicada.\
+"""
+        elif dup_key and lineno and self.lexpos:
             arr_of_lines = file_text.split('\n')
             line = arr_of_lines[lineno - 1]
             coluna = find_column(file_text, self.lexpos)
@@ -58,23 +68,44 @@ Encontrada chave \"{dup_key}\" duplicada.
 
 class InvalidAtrib(myException):
 
-    def __init__(self, message="Erro de atribuição de valor.", wrong_key = None, lineno = None, lexpos = None):
+    def __init__(self, message="Erro de atribuição de valor.", wrong_key = None, expected_type=None, actual_type=None, value=None, lineno = None, lexpos = None, linetable = None):
+        """Argumento "value" serve para ser possível calcular o tipo de dados que foi recebido."""
         self.wrong_key = wrong_key
-        super().__init__(message, lineno=lineno, lexpos=lexpos)
+        self.expected_type = expected_type
+        self.actual_type = actual_type
+        if expected_type and not isinstance(expected_type, str):
+            self.expected_type = type(expected_type).__name__
+        if actual_type and not isinstance(actual_type, str):
+            self.actual_type = type(actual_type).__name__
+        if not self.actual_type and value:
+            self.actual_type = type(value).__name__
+        super().__init__(message, lineno=lineno, lexpos=lexpos, linetable=linetable)
 
     def create_message(self, file_text):
+        linetable = self.linetable
         lineno = self.lineno
+        lexpos = self.lexpos
         wrong_key = self.wrong_key
-        if wrong_key and lineno and self.lexpos:
-            arr_of_lines = file_text.split('\n')
-            line = arr_of_lines[lineno - 1]
-            coluna = find_column(file_text, self.lexpos)
-            self.message = f"""
-Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna+1}.
-Encontrada chave \"{wrong_key}\" duplicada.
+        actual_type = self.actual_type
+        expected_type = self.expected_type
+        if wrong_key:
+            self.message = f"Erro de redefinição da chave \"{wrong_key}\""
+            if linetable:
+                self.message += f", na tabela da linha {linetable}.\n"
+            elif lineno and lexpos:
+                arr_of_lines = file_text.split('\n')
+                line = arr_of_lines[lineno - 1]
+                coluna = find_column(file_text, self.lexpos)
+                self.message += f", na linha {lineno}, na coluna {coluna+1}."
+                self.message += f"""
   {line.rstrip()}
   {" " * (coluna)}^\
 """
+            else:
+                self.message += ".\n"
+            self.message += f"O valor deveria ser do tipo '{expected_type}'.\n" if expected_type else ""
+            self.message += f"O valor recebido foi do tipo '{actual_type}'.\n" if actual_type else ""
+
 
 class parsingError(myException):
 
