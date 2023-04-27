@@ -1,5 +1,6 @@
 import ply.lex as lex
 import re
+import math
 from dateutil.parser import parse as parseDateTime
 from datetime import datetime
 
@@ -230,6 +231,23 @@ def t_RVALUE_FLOAT(t):
     t.lexer.pop_state()
     return t
 
+def t_RVALUE_INF(t):
+    r'(\+|\-)?inf'
+    if t.value[0] == "-":
+        t.value = -math.inf
+    else:
+        t.value = math.inf
+    t.type = "FLOAT"
+    t.lexer.pop_state()
+    return t
+
+def t_RVALUE_NAN(t):
+    r'(\+|\-)?nan'
+    t.value = math.nan
+    t.type = "FLOAT"
+    t.lexer.pop_state()
+    return t
+
 def t_RVALUE_INTHEX(t):
     r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])*'
     t.value = int(t.value, 16)
@@ -338,6 +356,21 @@ def t_RARRAY_FLOAT(t):
     # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
     r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
     t.value = float(t.value)
+    return t
+
+def t_RARRAY_INF(t):
+    r'(\+|\-)?inf'
+    if t.value[0] == "-":
+        t.value = -math.inf
+    else:
+        t.value = math.inf
+    t.type = "FLOAT"
+    return t
+
+def t_RARRAY_NAN(t):
+    r'(\+|\-)?nan'
+    t.value = math.nan
+    t.type = "FLOAT"
     return t
 
 def t_RARRAY_INTHEX(t):
