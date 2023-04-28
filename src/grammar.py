@@ -67,12 +67,12 @@ def merge_tables(dictionaries_list):
                     if lastisArrayList:
                         result[key][-1] = merge_tables([result[key][-1], value])
                     else:
-                        if not (isFinal(result[key]) and isFinal(value)):
+                        if not ((isFinal(result[key]) and isFinal(value))):
                             result[key] = merge_tables([result[key], value])
                         else:
                             raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key)
                 except AttributeError:
-                    raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key, expected_type="table", value = value) #! preciso de testar melhor esta condiçao.
+                    raise InvalidAtrib(f"InvalidAtrib na chave \"{key}\".", wrong_key = key)
             elif isinstance(value, list) and key in result:
                 if isinstance(result[key], list):
                     result[key] += value
