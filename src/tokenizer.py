@@ -67,10 +67,9 @@ def remove_leb(text):
     regex = re.compile(r'\\[\s\n]+')
     return re.sub(regex,'', text)
 
-def isValidInt(inteiro):
-    if inteiro > pow(2,63)-1 or inteiro < -pow(2,63):
-        print(f"Cannot parse BigInt {inteiro}!!")
-        exit()
+def isValidInt(inteiro): #! Tenho de ver melhor como vou usar isto
+    if inteiro.bit_length() > 63:
+        print(f"Não é possível serializar BigInt: {inteiro}!!")
         return False
     return True
 
@@ -79,11 +78,9 @@ def parse_bool(text):
     
 
 tokens = [
-    'COMMENT',
+    # 'COMMENT',
     'KEY',
     'STRING',
-    'LMLSTRING',
-    'BMLSTRING',
     'INT',
     'FLOAT',
     'BOOL',
@@ -115,8 +112,6 @@ def t_NEWLINE(t):
 
 def t_KEY(t):
     r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RVALUE')
     t.value = treat_keys(t.value)
     t.lexer.push_state('RVALUE')
     return t
@@ -127,8 +122,6 @@ def t_DOT(t):
 
 def t_OPENPR(t):
     r'\['
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RTABLE')
     t.lexer.push_state('RTABLE')
     return t
 
@@ -140,8 +133,6 @@ def t_CLOSEPR(t):
 # RTABLE
 def t_RTABLE_OPENPR(t):
     r'\['
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RTABLE')
     t.lexer.push_state('RTABLE')
     return t
 
@@ -169,16 +160,12 @@ def t_RVALUE_DOT(t):
 
 def t_RVALUE_OFFSETDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
-    # t.value = t.value.replace(' ','T')
-    # t.value = re.sub(r'[Tt]',' ',t.value)
-    # t.value = t.value.replace('z','Z')
     t.value = str(parseDateTime(t.value))
     t.lexer.pop_state()
     return t
 
 def t_RVALUE_LOCALDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    # t.value = re.sub(r'[Tt]',' ',t.value)
     t.value = str(parseDateTime(t.value))
     t.lexer.pop_state()
     return t
@@ -216,7 +203,6 @@ def t_RVALUE_LMLSTRING(t):
     return t
 
 def t_RVALUE_STRING(t):
-    # r'(""")(?:"){0,2}[^\1]*?"""(?:"){0,2}|\'\'\'[^\']*\'\'\'|(?P<quote>[\"\'])(?:(?=(?P<t2>\\?))(?P=t2).)*?(?P=quote)'
     r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
     t.value = treat_single_string(t.value)
     t.lexer.pop_state()
@@ -224,8 +210,6 @@ def t_RVALUE_STRING(t):
 
 
 def t_RVALUE_FLOAT(t):
-    # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
     r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
     t.value = float(t.value)
     t.lexer.pop_state()
@@ -248,8 +232,8 @@ def t_RVALUE_NAN(t):
     t.lexer.pop_state()
     return t
 
-def t_RVALUE_INTHEX(t):
-    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])*'
+def t_RVALUE_INTHEX(t): #! Corrigir isto para n permitir que venham letras acima do F
+    r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
     t.type = "INT"
@@ -287,8 +271,6 @@ def t_RVALUE_BOOL(t):
 
 def t_RVALUE_OPENPR(t):
     r'\['
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RARRAY')
     t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
     t.lexer.push_state('RARRAY')
     return t
@@ -300,8 +282,6 @@ def t_RVALUE_CLOSEPR(t):
 
 def t_RVALUE_OPENCHV(t):
     r'\{'
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RDICT')
     t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
     t.lexer.push_state('RDICT')
     return t
@@ -314,14 +294,11 @@ def t_RVALUE_CLOSECHV(t):
 # RARRAY
 def t_RARRAY_OFFSETDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
-    # t.value = re.sub(r'[Tt]',' ',t.value)
-    # t.value = t.value.replace('z','Z')
     t.value = str(parseDateTime(t.value))
     return t
 
 def t_RARRAY_LOCALDATETIME(t):
     r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    # t.value = re.sub(r'[Tt]',' ',t.value)
     t.value = str(parseDateTime(t.value))
     return t
 
@@ -353,8 +330,8 @@ def t_RARRAY_STRING(t):
     return t
 
 def t_RARRAY_FLOAT(t):
-    # r'(\+|\-)?(\d+e(\+|\-)?\d+|\d+\.\d+)'
-    r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
+    # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
+    r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
     t.value = float(t.value)
     return t
 
@@ -373,8 +350,8 @@ def t_RARRAY_NAN(t):
     t.type = "FLOAT"
     return t
 
-def t_RARRAY_INTHEX(t):
-    r'0x[0-9a-zA-Z](\_?[0-9a-zA-Z])*'
+def t_RARRAY_INTHEX(t): #! Corrigir isto para n permitir que venham letras acima do F
+    r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
     t.type = "INT"
@@ -411,8 +388,6 @@ def t_RARRAY_COMMA(t):
 
 def t_RARRAY_OPENPR(t):
     r'\['
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RARRAY')
     t.lexer.push_state('RARRAY')
     return t
 
@@ -423,8 +398,6 @@ def t_RARRAY_CLOSEPR(t):
 
 def t_RARRAY_OPENCHV(t):
     r'\{'
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RDICT')
     t.lexer.push_state('RDICT')
     return t
 
@@ -437,10 +410,7 @@ def t_RARRAY_CLOSECHV(t):
 def t_RDICT_KEY(t):
     # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
     r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RVALUE')
     t.value = treat_keys(t.value)
-    # t.value = remove_quotes(t.value)
     t.lexer.push_state('RVALUE')
     return t
 
@@ -450,8 +420,6 @@ def t_RDICT_COMMA(t):
 
 def t_RDICT_OPENPR(t):
     r'\['
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RARRAY')
     t.lexer.push_state('RARRAY')
     return t
 
@@ -462,8 +430,6 @@ def t_RDICT_CLOSEPR(t):
 
 def t_RDICT_OPENCHV(t):
     r'\{'
-    # t.lexer.push_state(t.lexer.lexstate)
-    # t.lexer.begin('RDICT')
     t.lexer.push_state('RDICT')
     return t
 

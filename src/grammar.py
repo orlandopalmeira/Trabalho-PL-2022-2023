@@ -2,10 +2,6 @@ import ply.yacc as yacc
 from tokenizer import tokens
 from myExceptions import *
 
-# Evita os warnings de tokens não utilizados
-not_used_tokens = ['COMMENT','BMLSTRING','LMLSTRING']
-for tok in not_used_tokens:
-    tokens.remove(tok)
 
 def calcObject(chaves, valor):
     dicionario = {chaves[-1]: valor}
@@ -20,17 +16,12 @@ def calcObjectArrayTable(chaves, valor):
     return dicionario
 
 def merge_dictionaries(dictionaries_list):
-
     result = {}
-    lastisArrayList = False
     for dictionary in dictionaries_list:
         for key, value in dictionary.items():
             if isinstance(value, dict) and key in result:
                 try:
-                    if lastisArrayList:
-                        result[key][-1] = merge_dictionaries([result[key][-1], value])
-                    else:
-                        result[key] = merge_dictionaries([result[key], value])
+                    result[key] = merge_dictionaries([result[key], value])
                 except AttributeError:
                     raise InvalidAtrib(f"Erro de atribuição de valor na chave \"{key}\".", wrong_key = key)
             elif isinstance(value, list) and key in result:
@@ -38,14 +29,9 @@ def merge_dictionaries(dictionaries_list):
             elif key in result: # verificação de duplicateKeys simples
                 raise dupKey(f"Erro: Chave \"{key}\" duplicada!", dup_key = key)
             else:
-                if isinstance(value, list):
-                    lastisArrayList = True
-                else:
-                    lastisArrayList = False
                 result[key] = value
     return result
     
-# Unused
 def isFinal(objeto):
     '''
     Verifica se um objeto é {key: value} ou {key: [value]} em que value não é um dicionário.
@@ -57,7 +43,6 @@ def isFinal(objeto):
     return True
 
 def merge_tables(dictionaries_list):
-
     result = {}
     lastisArrayList = False
     for dictionary in dictionaries_list:
@@ -126,7 +111,6 @@ def p_3(p):
         e.set_lineno(p.lineno(2))
         e.set_lexpos(p.lexpos(2))
         raise e
-
 
 def p_45(p): 
     '''kvaluepairs : kvaluepair newlines
@@ -279,12 +263,10 @@ def p_29(p):
 
 def p_30(p):
     'dictionary : OPENCHV dictcontent CLOSECHV'
-    # p[0] = dict(merge_dictionaries(p[2]))
     p[0] = p[2]
 
 def p_31(p):
     'dictcontent : dictcontent COMMA kvaluepair'
-    # p[0] = [p[1]] + p[3]
     try:
         p[0] = merge_dictionaries([p[1], p[3]])
     except myException as e:
@@ -305,23 +287,6 @@ def p_newlines(t):
     '''
 
 def p_error(p):
-#     if p:
-#         coluna = aux.find_column(p)
-#         line = aux.getline(p)
-#         message = f"""
-# Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.
-# Encontrado token '{p.value}' inesperado.
-# {line.rstrip()}
-# {" " * (coluna - 1)}^
-# """
-#         raise myException(message)
-#         # print(f"Erro de parsing: sintaxe inválida na linha {p.lineno}, coluna {coluna}.")
-#         # print(f"Encontrado token '{p.value}' inesperado.")
-#         # print(f"{line.rstrip()}")
-#         # print(" " * (coluna - 1) + "^")
-#     else:
-#         # print("Erro de sintaxe no EOF.")
-#         raise myException(flag="EOF")
     raise parsingError(token = p)
 
 parser = yacc.yacc(debug=True)

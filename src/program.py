@@ -5,7 +5,7 @@ from myExceptions import *
 
 ### Main
 # python3 program.py (<ficheiro_input>) (<ficheiro_output>)
-# in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/strings.toml"
+
 in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml"
 out_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/result.json"
 if len(sys.argv) > 2:
@@ -22,13 +22,10 @@ with open(in_file) as rf:
 
 try:
     parser.parse(text)
-except myException as e:
-
-    e.input_text(text)
-
-    e.printMessage()
-
-    # print("Execução interrompida!")##
+except myException as exc:
+    exc.input_text(text)
+    exc.printMessage()
+    ## print("Execução interrompida!")
 else:
     with open(out_file, 'w') as wf:
         # Printa na consola direto (DEBUG)
