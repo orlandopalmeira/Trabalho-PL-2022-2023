@@ -96,7 +96,8 @@ tokens = [
     'DOT',
     'EQUAL',
     'COMMA',
-    'NEWLINE'
+    'NEWLINE',
+    'EOF',
 ]
 
 states = [('RVALUE','exclusive'),
@@ -232,7 +233,7 @@ def t_RVALUE_NAN(t):
     t.lexer.pop_state()
     return t
 
-def t_RVALUE_INTHEX(t): #! Corrigir isto para n permitir que venham letras acima do F
+def t_RVALUE_INTHEX(t):
     r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
@@ -350,7 +351,7 @@ def t_RARRAY_NAN(t):
     t.type = "FLOAT"
     return t
 
-def t_RARRAY_INTHEX(t): #! Corrigir isto para n permitir que venham letras acima do F
+def t_RARRAY_INTHEX(t):
     r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
     t.value = int(t.value, 16)
     flag = isValidInt(t.value)
@@ -438,6 +439,13 @@ def t_RDICT_CLOSECHV(t):
     t.lexer.pop_state()
     return t
 
+def t_eof(t):
+    if not t.lexer.end:
+        t.type = 'EOF'
+        t.lexer.end = true
+        return t
+
+
 t_ANY_ignore = '\t '
 
 def t_ANY_error(t):
@@ -458,9 +466,10 @@ def t_ANY_newline(t):
 
 
 lexer = lex.lex()
+lexer.end = False
 
-# with open('examples/test.toml') as f:
-#     lexer.input(f.read())
+with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml') as f:
+    lexer.input(f.read())
 
-# for token in lexer:
-#     print(f'{token}: {lexer.current_state()}')
+for token in lexer:
+    print(f'{token}: {lexer.current_state()}')
