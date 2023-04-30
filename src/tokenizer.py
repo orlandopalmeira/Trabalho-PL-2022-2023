@@ -442,7 +442,7 @@ def t_RDICT_CLOSECHV(t):
 def t_eof(t):
     if not t.lexer.end:
         t.type = 'EOF'
-        t.lexer.end = true
+        t.lexer.end = True
         return t
 
 
@@ -468,8 +468,8 @@ def t_ANY_newline(t):
 lexer = lex.lex()
 lexer.end = False
 
-with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml') as f:
-    lexer.input(f.read())
+# with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml') as f:
+#     lexer.input(f.read())
 
-for token in lexer:
-    print(f'{token}: {lexer.current_state()}')
+# for token in lexer:
+#     print(f'{token}: {lexer.current_state()}')
