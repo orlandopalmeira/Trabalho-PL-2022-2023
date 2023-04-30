@@ -48,11 +48,3 @@ class Tests_float(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    # def test_005(self):
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/float/inf-and-nan.toml'))) as f_test:
-    #         parser.parse(f_test.read())
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/float/inf-and-nan.json'))) as f_result:
-    #         correct = json.load(f_result)
-    #     test = parser.result
-    #     self.assertEqual(test,correct)
-        

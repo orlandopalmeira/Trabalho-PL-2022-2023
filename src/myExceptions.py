@@ -1,7 +1,6 @@
-import re
 from abc import ABC, abstractmethod # apenas para definir uma classe abstrata
 
-def find_column(text, lexpos):
+def _find_column(text, lexpos):
     '''
     Retorna o número da coluna em que o token se encontra na linha.
     '''
@@ -50,15 +49,14 @@ class dupKey(myException):
         linetable = self.linetable
         dup_key = self.dup_key
         if dup_key and linetable:
-            self.message=f"""
+            self.message = f"""\
 Erro de parsing: sintaxe inválida na tabela da linha {linetable}.
-Encontrada chave \"{dup_key}\" duplicada.\
-"""
+Encontrada chave \"{dup_key}\" duplicada."""
         elif dup_key and lineno and self.lexpos:
             arr_of_lines = file_text.split('\n')
             line = arr_of_lines[lineno - 1]
-            coluna = find_column(file_text, self.lexpos)
-            self.message = f"""
+            coluna = _find_column(file_text, self.lexpos)
+            self.message = f"""\
 Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna+1}.
 Encontrada chave \"{dup_key}\" duplicada.
   {line.rstrip()}
@@ -90,17 +88,19 @@ class InvalidAtrib(myException):
         expected_type = self.expected_type
         if wrong_key:
             self.message = f"Erro de redefinição da chave \"{wrong_key}\""
+            # Definição do texto indicativo da linha do erro.
             if linetable:
                 self.message += f", na tabela da linha {linetable}.\n"
             elif lineno and lexpos:
                 arr_of_lines = file_text.split('\n')
-                line = arr_of_lines[lineno - 1]
-                coluna = find_column(file_text, self.lexpos)
+                line = arr_of_lines[lineno - 1].rstrip()
+                coluna = _find_column(file_text, self.lexpos)
                 self.message += f", na linha {lineno}, na coluna {coluna+1}."
-                self.message += f"""
-  {line.rstrip()}
+                if line:
+                    self.message += f"""
+  {line}
   {" " * (coluna)}^\
-"""
+  """                 
             else:
                 self.message += ".\n"
             self.message += f"O valor deveria ser do tipo '{expected_type}'.\n" if expected_type else ""
@@ -111,36 +111,35 @@ class parsingError(myException):
 
     def __init__(self, message="Erro de parsing.", token = None):
         self.value = None
-        self.isEOF = True
         lineno = None
         lexpos = None
         if token:
-            self.isEOF = False
-            self.value = token.value
+            self.value = "'"+token.value+"'" if token.value != "\n" else r"'\n' (newline)" # Esta condição serve para o caso do token ser um newLine para que não seja printado uma nova linha na mensagem de erro.
             lineno = token.lineno
             lexpos = token.lexpos
         super().__init__(message, lineno=lineno, lexpos=lexpos)
 
     def create_message(self, file_text):
         arr_of_lines = file_text.split('\n')
-        if not self.isEOF:
+        if self.value:
             value = self.value
             lineno = self.lineno
-            line = arr_of_lines[lineno - 1]
-            coluna = find_column(file_text, self.lexpos)
-            self.message = f"""
+            line = arr_of_lines[lineno - 1].rstrip()
+            coluna = _find_column(file_text, self.lexpos)
+            self.message = f"""\
 Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna+1}.
-Encontrado token '{value}' inesperado.
-  {line.rstrip()}
-  {" " * (coluna)}^\
-"""
-        else: # Caso de EOF
+Encontrado token {value} inesperado.
+  {line}
+  {" " * (coluna)}^"""
+        else: # Caso de EOF inesperado
             lineno = len(arr_of_lines)
-            line = arr_of_lines[-1]
+            line = arr_of_lines[-1].rstrip()
             coluna = len(line)
-            self.message = f"""
-Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna}.
-Fim de ficheiro inesperado.
-  {line.rstrip()}
+            self.message = f"""\
+Erro de parsing: sintaxe inválida na linha {lineno}, coluna {coluna+1}.
+Fim de ficheiro inesperado."""
+            if line:
+                self.message += f"""
+  {line}
   {" " * (coluna)}^\
 """

@@ -152,6 +152,11 @@ def t_RTABLE_CLOSEPR(t):
     t.lexer.pop_state()
     return t
 
+def t_RTABLE_NEWLINE(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+    return t
+
 
 # RVALUE
 def t_RVALUE_DOT(t):
@@ -208,7 +213,6 @@ def t_RVALUE_STRING(t):
     t.value = treat_single_string(t.value)
     t.lexer.pop_state()
     return t
-
 
 def t_RVALUE_FLOAT(t):
     r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
@@ -291,6 +295,12 @@ def t_RVALUE_CLOSECHV(t):
     r'\}'
     t.lexer.pop_state()
     return t
+
+def t_RVALUE_NEWLINE(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+    return t
+
 
 # RARRAY
 def t_RARRAY_OFFSETDATETIME(t):

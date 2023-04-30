@@ -64,15 +64,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    # def test_007(self):
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/multiline.toml'))) as f_test:
-    #         parser.parse(f_test.read())
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/multiline.json'))) as f_result:
-    #         correct = json.load(f_result)
-    #     test = parser.result
-    #     self.assertEqual(test,correct)
-        
-    def test_008(self):
+    def test_007(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/nl.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/nl.json'))) as f_result:
@@ -80,15 +72,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    # def test_009(self):
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/quoted-unicode.toml'))) as f_test:
-    #         parser.parse(f_test.read())
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/quoted-unicode.json'))) as f_result:
-    #         correct = json.load(f_result)
-    #     test = parser.result
-    #     self.assertEqual(test,correct)
-        
-    def test_010(self):
+    def test_008(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/raw-multiline.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/raw-multiline.json'))) as f_result:
@@ -96,7 +80,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_011(self):
+    def test_009(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/raw.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/raw.json'))) as f_result:
@@ -104,7 +88,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_012(self):
+    def test_010(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/simple.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/simple.json'))) as f_result:
@@ -112,7 +96,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_013(self):
+    def test_011(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/unicode-escape.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/unicode-escape.json'))) as f_result:
@@ -120,15 +104,7 @@ class Tests_string(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    # def test_014(self):
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/unicode-literal.toml'))) as f_test:
-    #         parser.parse(f_test.read())
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/unicode-literal.json'))) as f_result:
-    #         correct = json.load(f_result)
-    #     test = parser.result
-    #     self.assertEqual(test,correct)
-        
-    def test_015(self):
+    def test_012(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/with-pound.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/string/with-pound.json'))) as f_result:

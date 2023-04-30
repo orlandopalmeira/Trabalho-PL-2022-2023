@@ -88,15 +88,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    # def test_010(self):
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/names.toml'))) as f_test:
-    #         parser.parse(f_test.read())
-    #     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/names.json'))) as f_result:
-    #         correct = json.load(f_result)
-    #     test = parser.result
-    #     self.assertEqual(test,correct)
-        
-    def test_011(self):
+    def test_010(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/no-eol.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/no-eol.json'))) as f_result:
@@ -104,7 +96,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_012(self):
+    def test_011(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/sub-empty.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/sub-empty.json'))) as f_result:
@@ -112,7 +104,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_013(self):
+    def test_012(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/sub.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/sub.json'))) as f_result:
@@ -120,7 +112,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_014(self):
+    def test_013(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/whitespace.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/whitespace.json'))) as f_result:
@@ -128,7 +120,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_015(self):
+    def test_014(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-literal-string.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-literal-string.json'))) as f_result:
@@ -136,7 +128,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_016(self):
+    def test_015(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-pound.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-pound.json'))) as f_result:
@@ -144,7 +136,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_017(self):
+    def test_016(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-single-quotes.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/with-single-quotes.json'))) as f_result:
@@ -152,7 +144,7 @@ class Tests_table(unittest.TestCase):
         test = parser.result
         self.assertEqual(test,correct)
         
-    def test_018(self):
+    def test_017(self):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/without-super.toml'))) as f_test:
             parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', './valid2/table/without-super.json'))) as f_result:
