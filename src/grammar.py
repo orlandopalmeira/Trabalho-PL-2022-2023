@@ -73,7 +73,11 @@ def merge_tables(dictionaries_list):
                 result[key] = value
     return result
     
-
+def p_final(p):
+    '''
+    final : file EOF
+          | file
+    '''
 
 def p_0(p):
     'file : newlines toml'
@@ -103,7 +107,7 @@ def p_empty_file(p):
 def p_3(p):
     '''
     kvaluepairs : kvaluepairs kvaluepair newlines
-                | kvaluepairs kvaluepair
+                | kvaluepairs kvaluepair EOF
     '''
     try:
         p[0] = merge_dictionaries([p[1], p[2]])
@@ -114,7 +118,7 @@ def p_3(p):
 
 def p_45(p): 
     '''kvaluepairs : kvaluepair newlines
-                   | kvaluepair
+                   | kvaluepair EOF
     '''
     p[0] = p[1]
 
@@ -170,7 +174,8 @@ def p_11(p):
 ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
 def p_111(p):
     '''normaltable : OPENPR tablename CLOSEPR newlines
-                   | OPENPR tablename CLOSEPR '''
+                   | OPENPR tablename CLOSEPR EOF
+    '''
     p[0] = calcObject(p[2],{})
     p.set_lineno(0, p.lineno(2))
 
@@ -183,7 +188,7 @@ def p_12(p):
 def p_122(p):
     '''
     arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines
-               | OPENPR OPENPR tablename CLOSEPR CLOSEPR 
+               | OPENPR OPENPR tablename CLOSEPR CLOSEPR EOF
     '''
     p[0] = calcObjectArrayTable(p[3],{})
     p.set_lineno(0, p.lineno(3))
@@ -286,6 +291,7 @@ def p_32(p):
     p.set_lineno(0, p.lineno(1))
     p.set_lexpos(0, p.lexpos(1))
 
+# Define-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
 def p_newlines(t):
     '''
     newlines : NEWLINE newlines
