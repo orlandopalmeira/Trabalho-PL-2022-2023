@@ -257,6 +257,12 @@ def p_28(p):
     '''
     p[0] = [p[1]]
 
+def p_100(p):
+    'dictkvalpair : key EQUAL value'
+    p[0] = calcObject(p[1],p[3])
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
+
 def p_29(p):
     'dictionary : OPENCHV CLOSECHV'
     p[0] = dict()
@@ -266,7 +272,7 @@ def p_30(p):
     p[0] = p[2]
 
 def p_31(p):
-    'dictcontent : dictcontent COMMA kvaluepair'
+    'dictcontent : dictcontent COMMA dictkvalpair'
     try:
         p[0] = merge_dictionaries([p[1], p[3]])
     except myException as e:
@@ -275,7 +281,7 @@ def p_31(p):
         raise e
 
 def p_32(p):
-    'dictcontent : kvaluepair'
+    'dictcontent : dictkvalpair'
     p[0] = p[1]
     p.set_lineno(0, p.lineno(1))
     p.set_lexpos(0, p.lexpos(1))
