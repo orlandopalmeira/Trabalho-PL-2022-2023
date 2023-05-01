@@ -448,6 +448,7 @@ class MyLexer:
         return t
 
     def t_eof(self, t):
+        # Uma vez que o lexer chama t_eof, sempre que é retornado um token na sua própria função, desta maneira assegura que só passa por ela uma vez.
         if not t.lexer.end:
             t.type = 'EOF'
             t.lexer.end = True
