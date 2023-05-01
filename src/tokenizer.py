@@ -139,7 +139,6 @@ class MyLexer:
         return t
 
     def t_RTABLE_TABLE(self, t):
-        # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
         r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
         t.value = treat_keys(t.value)
         return t
@@ -342,7 +341,6 @@ class MyLexer:
         return t
 
     def t_RARRAY_FLOAT(self, t):
-        # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
         r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
         t.value = float(t.value)
         return t
@@ -420,7 +418,6 @@ class MyLexer:
 
     # RDICT
     def t_RDICT_KEY(self, t):
-        # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
         r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
         t.value = treat_keys(t.value)
         t.lexer.push_state('RVALUE')
