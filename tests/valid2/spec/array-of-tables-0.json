@@ -6,9 +6,9 @@
     },
     {},
     {
-      "color": "gray",
       "name": "Nail",
-      "sku": 284758393
+      "sku": 284758393,
+      "color": "gray"
     }
   ]
 }

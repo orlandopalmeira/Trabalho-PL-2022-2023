@@ -1,12 +1,12 @@
 {
   "apple": {
-    "color": "red",
+    "type": "fruit",
     "skin": "thin",
-    "type": "fruit"
+    "color": "red"
   },
   "orange": {
-    "color": "orange",
+    "type": "fruit",
     "skin": "thick",
-    "type": "fruit"
+    "color": "orange"
   }
 }

@@ -1,8 +1,8 @@
 {
-  "breed": "pug",
   "name": "Fido",
+  "breed": "pug",
   "owner": {
-    "member_since": "1999-08-04",
-    "name": "Regina Dogman"
+    "name": "Regina Dogman",
+    "member_since": "1999-08-04"
   }
 }

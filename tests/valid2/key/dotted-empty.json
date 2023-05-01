@@ -2,12 +2,12 @@
   "": {
     "x": "empty.x"
   },
+  "x": {
+    "": "x.empty"
+  },
   "a": {
     "": {
       "": "empty.empty"
     }
-  },
-  "x": {
-    "": "x.empty"
   }
 }

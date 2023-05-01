@@ -1,4 +1,4 @@
 {
-  "another": "# This is not a comment",
-  "key": "value"
+  "key": "value",
+  "another": "# This is not a comment"
 }

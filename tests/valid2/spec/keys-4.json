@@ -1,7 +1,7 @@
 {
   "fruit": {
+    "name": "banana",
     "color": "yellow",
-    "flavor": "banana",
-    "name": "banana"
+    "flavor": "banana"
   }
 }
