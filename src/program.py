@@ -1,10 +1,15 @@
 import sys
 import json
-from grammar import parser
+from grammar import Parser
 from myExceptions import *
 
 ### Main
-# python3 program.py (<ficheiro_input>) (<ficheiro_output>)
+# python3 program.py [nome do ficheiro de input] [nome do ficheiro output]
+
+# Construção do parser
+myparser = Parser()
+myparser.build()
+# parser.build(debug=True)
 
 in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml"
 out_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/result.json"
@@ -15,21 +20,23 @@ if len(sys.argv) > 1:
 
 print(f"Ficheiro de input: {in_file}")
 print(f"Ficheiro de output: {out_file}")
-print("\nA analisar..\n")
 
 with open(in_file) as rf:
     text = rf.read()
 
-try:
-    parser.parse(text)
-except myException as exc:
-    exc.input_text(text)
-    exc.printMessage()
-    ## print("Execução interrompida!")
-else:
-    with open(out_file, 'w') as wf:
-        # Printa na consola direto (DEBUG)
-        print(json.dumps(parser.result, indent=2, ensure_ascii=False))##
+print("\nA analisar..\n")
 
-        json.dump(parser.result, wf, indent=2, ensure_ascii=False)
-        print(f"\nResultado escrito no ficheiro {out_file}.")
+try:
+    # result = myparser.parser.parse(text)
+    result = myparser.input_data(text)
+except myException as exc:
+    # Alimenta a exceção com o texto do ficheiro de input para ter uma mensagem mais detalhada
+    exc.input_text(text)
+    # Escreve a mensagem de erro gerada
+    exc.printMessage()
+else:
+    # Printa na consola direto (DEBUG)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    with open(out_file, 'w') as wf:
+        json.dump(result, wf, indent=2, ensure_ascii=False)
+    print(f"\nResultado escrito no ficheiro {out_file}.")

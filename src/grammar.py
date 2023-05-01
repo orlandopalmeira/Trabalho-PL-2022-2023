@@ -1,5 +1,6 @@
 import ply.yacc as yacc
-from tokenizer import tokens
+# from tokenizer import tokens
+from tokenizer import MyLexer
 from myExceptions import *
 
 
@@ -73,226 +74,244 @@ def merge_tables(dictionaries_list):
                 result[key] = value
     return result
     
-def p_final(p):
-    '''
-    final : file EOF
-          | file
-    '''
+class Parser:
 
-def p_0(p):
-    'file : newlines toml'
-    p.parser.result = p[2]
+    tokens = MyLexer.tokens
 
-def p_1(p):
-    'file : toml'
-    p.parser.result = p[1]
+    def p_final(self, p):
+        '''
+        final : file EOF
+              | file
+        '''
+        p[0] = p[1]
+        # p.parser.result = p[1]
 
-def p_2(p):
-    'toml : kvaluepairs tables'
-    p[0] = merge_dictionaries([p[1], p[2]])
+    def p_0(self, p):
+        'file : newlines toml'
+        p[0] = p[2]
+        # p.parser.result = p[2]
 
-def p_233(p):
-    '''
-    toml : kvaluepairs
-         | tables
-    '''
-    p[0] = p[1]
+    def p_1(self, p):
+        'file : toml'
+        p[0] = p[1]
+        # p.parser.result = p[1]
 
-def p_empty_file(p):
-    '''
-    toml : 
-    '''
-    p[0] = {}
-
-def p_3(p):
-    '''
-    kvaluepairs : kvaluepairs kvaluepair newlines
-                | kvaluepairs kvaluepair EOF
-    '''
-    try:
+    def p_2(self, p):
+        'toml : kvaluepairs tables'
         p[0] = merge_dictionaries([p[1], p[2]])
-    except myException as e:
-        e.set_lineno(p.lineno(2))
-        e.set_lexpos(p.lexpos(2))
-        raise e
 
-def p_45(p): 
-    '''kvaluepairs : kvaluepair newlines
-                   | kvaluepair EOF
-    '''
-    p[0] = p[1]
+    def p_233(self, p):
+        '''
+        toml : kvaluepairs
+             | tables
+        '''
+        p[0] = p[1]
 
-def p_5(p):
-    'kvaluepair : key EQUAL value'
-    p[0] = calcObject(p[1],p[3])
-    p.set_lineno(0, p.lineno(1))
-    p.set_lexpos(0, p.lexpos(1))
+    def p_empty_file(self, p):
+        '''
+        toml : 
+        '''
+        p[0] = {}
 
-def p_6(p):
-    'key : KEY DOT key'
-    p[0] = [p[1]] + p[3]
-    p.set_lineno(0, p.lineno(1))
-    p.set_lexpos(0, p.lexpos(1))
+    def p_3(self, p):
+        '''
+        kvaluepairs : kvaluepairs kvaluepair newlines
+                    | kvaluepairs kvaluepair EOF
+        '''
+        try:
+            p[0] = merge_dictionaries([p[1], p[2]])
+        except myException as e:
+            e.set_lineno(p.lineno(2))
+            e.set_lexpos(p.lexpos(2))
+            raise e
 
-def p_7(p):
-    'key : KEY'
-    p[0] = [p[1]]
-    p.set_lineno(0, p.lineno(1))
-    p.set_lexpos(0, p.lexpos(1))
+    def p_45(self, p): 
+        '''kvaluepairs : kvaluepair newlines
+                       | kvaluepair EOF
+        '''
+        p[0] = p[1]
 
-def p_8(p):
-    'tables : tables normaltable'
-    # p[0] = merge_dictionaries([p[1],p[2]])
-    try:
-        p[0] = merge_tables([p[1],p[2]])
-    except myException as exc:
-        exc.set_linetable(p.lineno(2))
-        raise exc
+    def p_5(self, p):
+        'kvaluepair : key EQUAL value'
+        p[0] = calcObject(p[1],p[3])
+        p.set_lineno(0, p.lineno(1))
+        p.set_lexpos(0, p.lexpos(1))
 
-def p_9(p):
-    'tables : tables arraytable'
-    # p[0] = merge_dictionaries([p[1],p[2]])
-    try:
-        p[0] = merge_tables([p[1],p[2]])
-    except myException as exc:
-        exc.set_linetable(p.lineno(2))
-        raise exc
+    def p_6(self, p):
+        'key : KEY DOT key'
+        p[0] = [p[1]] + p[3]
+        p.set_lineno(0, p.lineno(1))
+        p.set_lexpos(0, p.lexpos(1))
 
-def p_10(p):
-    '''
-    tables : arraytable
-           | normaltable
-    '''
-    p[0] = p[1]
+    def p_7(self, p):
+        'key : KEY'
+        p[0] = [p[1]]
+        p.set_lineno(0, p.lineno(1))
+        p.set_lexpos(0, p.lexpos(1))
+
+    def p_8(self, p):
+        'tables : tables normaltable'
+        # p[0] = merge_dictionaries([p[1],p[2]])
+        try:
+            p[0] = merge_tables([p[1],p[2]])
+        except myException as exc:
+            exc.set_linetable(p.lineno(2))
+            raise exc
+
+    def p_9(self, p):
+        'tables : tables arraytable'
+        # p[0] = merge_dictionaries([p[1],p[2]])
+        try:
+            p[0] = merge_tables([p[1],p[2]])
+        except myException as exc:
+            exc.set_linetable(p.lineno(2))
+            raise exc
+
+    def p_10(self, p):
+        '''
+        tables : arraytable
+               | normaltable
+        '''
+        p[0] = p[1]
 
 
-def p_11(p):
-    'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
-    p[0] = calcObject(p[2],p[5])
-    p.set_lineno(0, p.lineno(2))
+    def p_11(self, p):
+        'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
+        p[0] = calcObject(p[2],p[5])
+        p.set_lineno(0, p.lineno(2))
 
-### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
-def p_111(p):
-    '''normaltable : OPENPR tablename CLOSEPR newlines
-                   | OPENPR tablename CLOSEPR EOF
-    '''
-    p[0] = calcObject(p[2],{})
-    p.set_lineno(0, p.lineno(2))
+    ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
+    def p_111(self, p):
+        '''normaltable : OPENPR tablename CLOSEPR newlines
+                       | OPENPR tablename CLOSEPR EOF
+        '''
+        p[0] = calcObject(p[2],{})
+        p.set_lineno(0, p.lineno(2))
 
-def p_12(p):
-    'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
-    p[0] = calcObjectArrayTable(p[3],p[7])
-    p.set_lineno(0, p.lineno(3))
+    def p_12(self, p):
+        'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
+        p[0] = calcObjectArrayTable(p[3],p[7])
+        p.set_lineno(0, p.lineno(3))
 
-### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
-def p_122(p):
-    '''
-    arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines
-               | OPENPR OPENPR tablename CLOSEPR CLOSEPR EOF
-    '''
-    p[0] = calcObjectArrayTable(p[3],{})
-    p.set_lineno(0, p.lineno(3))
+    ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
+    def p_122(self, p):
+        '''
+        arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines
+                   | OPENPR OPENPR tablename CLOSEPR CLOSEPR EOF
+        '''
+        p[0] = calcObjectArrayTable(p[3],{})
+        p.set_lineno(0, p.lineno(3))
 
-def p_13(p):
-    'tablename : TABLE DOT tablename'
-    p[0] = [p[1]] + p[3]
-    p.set_lineno(0, p.lineno(1))
+    def p_13(self, p):
+        'tablename : TABLE DOT tablename'
+        p[0] = [p[1]] + p[3]
+        p.set_lineno(0, p.lineno(1))
 
-def p_14(p):
-    'tablename : TABLE'
-    p[0] = [p[1]]
-    p.set_lineno(0, p.lineno(1))
+    def p_14(self, p):
+        'tablename : TABLE'
+        p[0] = [p[1]]
+        p.set_lineno(0, p.lineno(1))
 
-def p_15(p):
-    'value : INT'
-    p[0] = p[1]
+    def p_15(self, p):
+        'value : INT'
+        p[0] = p[1]
 
-def p_16(p):
-    'value : FLOAT'
-    p[0] = p[1]
+    def p_16(self, p):
+        'value : FLOAT'
+        p[0] = p[1]
 
-def p_17(p):
-    'value : STRING'
-    p[0] = p[1]
+    def p_17(self, p):
+        'value : STRING'
+        p[0] = p[1]
 
-def p_18(p):
-    'value : BOOL'
-    p[0] = p[1]
+    def p_18(self, p):
+        'value : BOOL'
+        p[0] = p[1]
 
-def p_19(p):
-    'value : OFFSETDATETIME'
-    p[0] = p[1]
+    def p_19(self, p):
+        'value : OFFSETDATETIME'
+        p[0] = p[1]
 
-def p_20(p):
-    'value : LOCALDATETIME'
-    p[0] = p[1]
+    def p_20(self, p):
+        'value : LOCALDATETIME'
+        p[0] = p[1]
 
-def p_21(p):
-    'value : LOCALDATE'
-    p[0] = p[1]
+    def p_21(self, p):
+        'value : LOCALDATE'
+        p[0] = p[1]
 
-def p_22(p):
-    'value : LOCALTIME'
-    p[0] = p[1]
+    def p_22(self, p):
+        'value : LOCALTIME'
+        p[0] = p[1]
 
-def p_23(p):
-    'value : array'
-    p[0] = p[1]
+    def p_23(self, p):
+        'value : array'
+        p[0] = p[1]
 
-def p_24(p):
-    'value : dictionary'
-    p[0] = p[1]
+    def p_24(self, p):
+        'value : dictionary'
+        p[0] = p[1]
 
-def p_25(p):
-    'array : OPENPR CLOSEPR'
-    p[0] = []
+    def p_25(self, p):
+        'array : OPENPR CLOSEPR'
+        p[0] = []
 
-def p_26(p):
-    'array : OPENPR arraycontent CLOSEPR'
-    p[0] = p[2]
+    def p_26(self, p):
+        'array : OPENPR arraycontent CLOSEPR'
+        p[0] = p[2]
 
-def p_27(p):
-    'arraycontent : value COMMA arraycontent'
-    p[0] = [p[1]] + p[3]
+    def p_27(self, p):
+        'arraycontent : value COMMA arraycontent'
+        p[0] = [p[1]] + p[3]
 
-def p_28(p):
-    '''
-    arraycontent : value
-                 | value COMMA
-    '''
-    p[0] = [p[1]]
+    def p_28(self, p):
+        '''
+        arraycontent : value
+                     | value COMMA
+        '''
+        p[0] = [p[1]]
 
-def p_29(p):
-    'dictionary : OPENCHV CLOSECHV'
-    p[0] = dict()
+    def p_29(self, p):
+        'dictionary : OPENCHV CLOSECHV'
+        p[0] = dict()
 
-def p_30(p):
-    'dictionary : OPENCHV dictcontent CLOSECHV'
-    p[0] = p[2]
+    def p_30(self, p):
+        'dictionary : OPENCHV dictcontent CLOSECHV'
+        p[0] = p[2]
 
-def p_31(p):
-    'dictcontent : dictcontent COMMA kvaluepair'
-    try:
-        p[0] = merge_dictionaries([p[1], p[3]])
-    except myException as e:
-        e.set_lineno(p.lineno(3))
-        e.set_lexpos(p.lexpos(3))
-        raise e
+    def p_31(self, p):
+        'dictcontent : dictcontent COMMA kvaluepair'
+        try:
+            p[0] = merge_dictionaries([p[1], p[3]])
+        except myException as e:
+            e.set_lineno(p.lineno(3))
+            e.set_lexpos(p.lexpos(3))
+            raise e
 
-def p_32(p):
-    'dictcontent : kvaluepair'
-    p[0] = p[1]
-    p.set_lineno(0, p.lineno(1))
-    p.set_lexpos(0, p.lexpos(1))
+    def p_32(self, p):
+        'dictcontent : kvaluepair'
+        p[0] = p[1]
+        p.set_lineno(0, p.lineno(1))
+        p.set_lexpos(0, p.lexpos(1))
 
-# Define-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
-def p_newlines(t):
-    '''
-    newlines : NEWLINE newlines
-             | NEWLINE
-    '''
+    # Utiliza-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
+    def p_newlines(self, p):
+        '''
+        newlines : NEWLINE newlines
+                 | NEWLINE
+        '''
 
-def p_error(p):
-    raise parsingError(token = p)
+    def p_error(self, p):
+        raise parsingError(token = p)
 
-parser = yacc.yacc(debug=True)
+
+    def build(self, **kwargs):
+        self.lexer = MyLexer()
+        self.lexer.build()
+        self.parser = yacc.yacc(module=self, **kwargs)
+
+    def input_data(self, data):
+        result = self.parser.parse(data)
+        return result
+
+    # parser = yacc.yacc(debug=True)

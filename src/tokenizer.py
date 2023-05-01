@@ -76,410 +76,426 @@ def isValidInt(inteiro): #! Tenho de ver melhor como vou usar isto
 def parse_bool(text):
     return True if text == 'true' else False
     
+class MyLexer:
+    
+    tokens = [
+        # 'COMMENT',
+        'KEY',
+        'STRING',
+        'INT',
+        'FLOAT',
+        'BOOL',
+        'OFFSETDATETIME',
+        'LOCALDATETIME',
+        'LOCALDATE',
+        'LOCALTIME',
+        'TABLE', # object
+        'OPENPR', # parenteses rectos
+        'CLOSEPR',
+        'OPENCHV', # chavetas
+        'CLOSECHV',
+        'DOT',
+        'EQUAL',
+        'COMMA',
+        'NEWLINE',
+        'EOF',
+    ]
 
-tokens = [
-    # 'COMMENT',
-    'KEY',
-    'STRING',
-    'INT',
-    'FLOAT',
-    'BOOL',
-    'OFFSETDATETIME',
-    'LOCALDATETIME',
-    'LOCALDATE',
-    'LOCALTIME',
-    'TABLE', # object
-    'OPENPR', # parenteses rectos
-    'CLOSEPR',
-    'OPENCHV', # chavetas
-    'CLOSECHV',
-    'DOT',
-    'EQUAL',
-    'COMMA',
-    'NEWLINE',
-    'EOF',
-]
+    states = [('RVALUE','exclusive'),
+              ('RTABLE','exclusive'),
+              ('RARRAY','exclusive'),
+              ('RDICT' ,'exclusive')]
 
-states = [('RVALUE','exclusive'),
-          ('RTABLE','exclusive'),
-          ('RARRAY','exclusive'),
-          ('RDICT' ,'exclusive')]
+    # INITIAL
+    def t_NEWLINE(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+        return t
 
-# INITIAL
-def t_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-    return t
+    def t_KEY(self, t):
+        r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
+        t.value = treat_keys(t.value)
+        t.lexer.push_state('RVALUE')
+        return t
 
-def t_KEY(t):
-    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    t.value = treat_keys(t.value)
-    t.lexer.push_state('RVALUE')
-    return t
+    def t_DOT(self, t):
+        r'\.'
+        return t
 
-def t_DOT(t):
-    r'\.'
-    return t
+    def t_OPENPR(self, t):
+        r'\['
+        t.lexer.push_state('RTABLE')
+        return t
 
-def t_OPENPR(t):
-    r'\['
-    t.lexer.push_state('RTABLE')
-    return t
+    def t_CLOSEPR(self, t):
+        r'\]'
+        t.lexer.pop_state()
+        return t
 
-def t_CLOSEPR(t):
-    r'\]'
-    t.lexer.pop_state()
-    return t
+    # RTABLE
+    def t_RTABLE_OPENPR(self, t):
+        r'\['
+        t.lexer.push_state('RTABLE')
+        return t
 
-# RTABLE
-def t_RTABLE_OPENPR(t):
-    r'\['
-    t.lexer.push_state('RTABLE')
-    return t
+    def t_RTABLE_TABLE(self, t):
+        # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
+        r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
+        t.value = treat_keys(t.value)
+        return t
 
-def t_RTABLE_TABLE(t):
-    # r'[\w\-]+|\"[^\"\n]+\"|\'[^\'\n]+\''
-    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    t.value = treat_keys(t.value)
-    return t
+    def t_RTABLE_DOT(self, t):
+        r'\.'
+        return t
 
-def t_RTABLE_DOT(t):
-    r'\.'
-    return t
+    def t_RTABLE_CLOSEPR(self, t):
+        r'\]'
+        t.lexer.pop_state()
+        return t
 
-def t_RTABLE_CLOSEPR(t):
-    r'\]'
-    t.lexer.pop_state()
-    return t
-
-def t_RTABLE_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-    return t
-
-
-# RVALUE
-def t_RVALUE_DOT(t):
-    r'\.'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
-    t.value = str(parseDateTime(t.value))
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = str(parseDateTime(t.value))
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_LOCALDATE(t):
-    r'\d{4}\-\d{2}\-\d{2}'
-    t.lexer.pop_state()
-    t.value = str(parseDateTime(t.value).date())
-    return t
-
-def t_RVALUE_LOCALTIME(t):
-    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.lexer.pop_state()
-    t.value = str(parseDateTime(t.value).time())
-    return t
-
-def t_RVALUE_EQUAL(t):
-    r'='
-    return t
-
-# Basic Multi-line
-def t_RVALUE_BMLSTRING(t):
-    r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
-    t.value = treat_BML_string(t.value)
-    t.lexer.pop_state()
-    t.type = 'STRING'
-    return t
-
-# Literal Multi-line
-def t_RVALUE_LMLSTRING(t):
-    r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
-    t.value = treat_LML_string(t.value)
-    t.lexer.pop_state()
-    t.type = 'STRING'
-    return t
-
-def t_RVALUE_STRING(t):
-    r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    t.value = treat_single_string(t.value)
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_FLOAT(t):
-    r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
-    t.value = float(t.value)
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_INF(t):
-    r'(\+|\-)?inf'
-    if t.value[0] == "-":
-        t.value = -math.inf
-    else:
-        t.value = math.inf
-    t.type = "FLOAT"
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_NAN(t):
-    r'(\+|\-)?nan'
-    t.value = math.nan
-    t.type = "FLOAT"
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_INTHEX(t):
-    r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
-    t.value = int(t.value, 16)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_INTOCT(t):
-    r'0o[0-7](_?[0-7])*'
-    t.value = int(t.value, 8)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_INTBIN(t):
-    r'0b[01](_?[01])*'
-    t.value = int(t.value, 2)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_INT(t):
-    r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
-    t.value = int(t.value)
-    flag = isValidInt(t.value)
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_BOOL(t):
-    r'\b(true|false)\b'
-    t.value = parse_bool(t.value)
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_OPENPR(t):
-    r'\['
-    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
-    t.lexer.push_state('RARRAY')
-    return t
-
-def t_RVALUE_CLOSEPR(t):
-    r'\]'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_OPENCHV(t):
-    r'\{'
-    t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
-    t.lexer.push_state('RDICT')
-    return t
-
-def t_RVALUE_CLOSECHV(t):
-    r'\}'
-    t.lexer.pop_state()
-    return t
-
-def t_RVALUE_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-    return t
-
-
-# RARRAY
-def t_RARRAY_OFFSETDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
-    t.value = str(parseDateTime(t.value))
-    return t
-
-def t_RARRAY_LOCALDATETIME(t):
-    r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = str(parseDateTime(t.value))
-    return t
-
-def t_RARRAY_LOCALDATE(t):
-    r'\d{4}\-\d{2}\-\d{2}'
-    t.value = str(parseDateTime(t.value).date())
-    return t
-
-def t_RARRAY_LOCALTIME(t):
-    r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
-    t.value = str(parseDateTime(t.value).time())
-    return t
-
-def t_RARRAY_BMLSTRING(t):
-    r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
-    t.value = treat_BML_string(t.value)
-    t.type = 'STRING'
-    return t
-
-def t_RARRAY_LMLSTRING(t):
-    r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
-    t.value = treat_LML_string(t.value)
-    t.type = 'STRING'
-    return t
-
-def t_RARRAY_STRING(t):
-    r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    t.value = treat_single_string(t.value)
-    return t
-
-def t_RARRAY_FLOAT(t):
-    # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
-    r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
-    t.value = float(t.value)
-    return t
-
-def t_RARRAY_INF(t):
-    r'(\+|\-)?inf'
-    if t.value[0] == "-":
-        t.value = -math.inf
-    else:
-        t.value = math.inf
-    t.type = "FLOAT"
-    return t
-
-def t_RARRAY_NAN(t):
-    r'(\+|\-)?nan'
-    t.value = math.nan
-    t.type = "FLOAT"
-    return t
-
-def t_RARRAY_INTHEX(t):
-    r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
-    t.value = int(t.value, 16)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    return t
-
-def t_RARRAY_INTOCT(t):
-    r'0o[0-7](_?[0-7])*'
-    t.value = int(t.value, 8)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    return t
-
-def t_RARRAY_INTBIN(t):
-    r'0b[01](_?[01])*'
-    t.value = int(t.value, 2)
-    flag = isValidInt(t.value)
-    t.type = "INT"
-    return t
-
-def t_RARRAY_INT(t):
-    r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
-    t.value = int(t.value)
-    flag = isValidInt(t.value)
-    return t
-
-def t_RARRAY_BOOL(t):
-    r'\b(true|false)\b'
-    t.value = parse_bool(t.value)
-    return t
-
-def t_RARRAY_COMMA(t):
-    r'\,'
-    return t
-
-def t_RARRAY_OPENPR(t):
-    r'\['
-    t.lexer.push_state('RARRAY')
-    return t
-
-def t_RARRAY_CLOSEPR(t):
-    r'\]'
-    t.lexer.pop_state()
-    return t
-
-def t_RARRAY_OPENCHV(t):
-    r'\{'
-    t.lexer.push_state('RDICT')
-    return t
-
-def t_RARRAY_CLOSECHV(t):
-    r'\}'
-    t.lexer.pop_state()
-    return t
-
-# RDICT
-def t_RDICT_KEY(t):
-    # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
-    r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
-    t.value = treat_keys(t.value)
-    t.lexer.push_state('RVALUE')
-    return t
-
-def t_RDICT_COMMA(t):
-    r'\,'
-    return t
-
-def t_RDICT_OPENPR(t):
-    r'\['
-    t.lexer.push_state('RARRAY')
-    return t
-
-def t_RDICT_CLOSEPR(t):
-    r'\]'
-    t.lexer.pop_state()
-    return t
-
-def t_RDICT_OPENCHV(t):
-    r'\{'
-    t.lexer.push_state('RDICT')
-    return t
-
-def t_RDICT_CLOSECHV(t):
-    r'\}'
-    t.lexer.pop_state()
-    return t
-
-def t_eof(t):
-    if not t.lexer.end:
-        t.type = 'EOF'
-        t.lexer.end = True
+    def t_RTABLE_NEWLINE(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
         return t
 
 
-t_ANY_ignore = '\t '
+    # RVALUE
+    def t_RVALUE_DOT(self, t):
+        r'\.'
+        t.lexer.pop_state()
+        return t
 
-def t_ANY_error(t):
-    coluna = find_column(t)
-    line = getline(t)
-    print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
-    print(f"{line.rstrip()}")
-    print(" " * (coluna - 1) + "^")
-    print("Execução interrompida!")
-    exit(1)
+    def t_RVALUE_OFFSETDATETIME(self, t):
+        r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
+        t.value = str(parseDateTime(t.value))
+        t.lexer.pop_state()
+        return t
 
-def t_ANY_COMMENT(t):
-    r'\#.*'
+    def t_RVALUE_LOCALDATETIME(self, t):
+        r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+        t.value = str(parseDateTime(t.value))
+        t.lexer.pop_state()
+        return t
 
-def t_ANY_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+    def t_RVALUE_LOCALDATE(self, t):
+        r'\d{4}\-\d{2}\-\d{2}'
+        t.lexer.pop_state()
+        t.value = str(parseDateTime(t.value).date())
+        return t
+
+    def t_RVALUE_LOCALTIME(self, t):
+        r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+        t.lexer.pop_state()
+        t.value = str(parseDateTime(t.value).time())
+        return t
+
+    def t_RVALUE_EQUAL(self, t):
+        r'='
+        return t
+
+    # Basic Multi-line
+    def t_RVALUE_BMLSTRING(self, t):
+        r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+        t.value = treat_BML_string(t.value)
+        t.lexer.pop_state()
+        t.type = 'STRING'
+        return t
+
+    # Literal Multi-line
+    def t_RVALUE_LMLSTRING(self, t):
+        r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
+        t.value = treat_LML_string(t.value)
+        t.lexer.pop_state()
+        t.type = 'STRING'
+        return t
+
+    def t_RVALUE_STRING(self, t):
+        r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
+        t.value = treat_single_string(t.value)
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_FLOAT(self, t):
+        r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
+        t.value = float(t.value)
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_INF(self, t):
+        r'(\+|\-)?inf'
+        if t.value[0] == "-":
+            t.value = -math.inf
+        else:
+            t.value = math.inf
+        t.type = "FLOAT"
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_NAN(self, t):
+        r'(\+|\-)?nan'
+        t.value = math.nan
+        t.type = "FLOAT"
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_INTHEX(self, t):
+        r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
+        t.value = int(t.value, 16)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_INTOCT(self, t):
+        r'0o[0-7](_?[0-7])*'
+        t.value = int(t.value, 8)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_INTBIN(self, t):
+        r'0b[01](_?[01])*'
+        t.value = int(t.value, 2)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_INT(self, t):
+        r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
+        t.value = int(t.value)
+        flag = isValidInt(t.value)
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_BOOL(self, t):
+        r'\b(true|false)\b'
+        t.value = parse_bool(t.value)
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_OPENPR(self, t):
+        r'\['
+        t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
+        t.lexer.push_state('RARRAY')
+        return t
+
+    def t_RVALUE_CLOSEPR(self, t):
+        r'\]'
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_OPENCHV(self, t):
+        r'\{'
+        t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
+        t.lexer.push_state('RDICT')
+        return t
+
+    def t_RVALUE_CLOSECHV(self, t):
+        r'\}'
+        t.lexer.pop_state()
+        return t
+
+    def t_RVALUE_NEWLINE(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+        return t
 
 
-lexer = lex.lex()
-lexer.end = False
+    # RARRAY
+    def t_RARRAY_OFFSETDATETIME(self, t):
+        r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
+        t.value = str(parseDateTime(t.value))
+        return t
 
-# with open('/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/zcurrent.toml') as f:
-#     lexer.input(f.read())
+    def t_RARRAY_LOCALDATETIME(self, t):
+        r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+        t.value = str(parseDateTime(t.value))
+        return t
 
-# for token in lexer:
-#     print(f'{token}: {lexer.current_state()}')
+    def t_RARRAY_LOCALDATE(self, t):
+        r'\d{4}\-\d{2}\-\d{2}'
+        t.value = str(parseDateTime(t.value).date())
+        return t
+
+    def t_RARRAY_LOCALTIME(self, t):
+        r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
+        t.value = str(parseDateTime(t.value).time())
+        return t
+
+    def t_RARRAY_BMLSTRING(self, t):
+        r'""""""|"""(?:"){0,2}(?:(?=(?P<t0>\\?))(?P=t0)(?:.|\n))*?"""(?:"){0,2}'
+        t.value = treat_BML_string(t.value)
+        t.type = 'STRING'
+        return t
+
+    def t_RARRAY_LMLSTRING(self, t):
+        r'\'\'\'\'\'\'|\'\'\'(?:\'){0,2}(.|\n)*?\'\'\'(?:\'){0,2}'
+        t.value = treat_LML_string(t.value)
+        t.type = 'STRING'
+        return t
+
+    def t_RARRAY_STRING(self, t):
+        r'\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
+        t.value = treat_single_string(t.value)
+        return t
+
+    def t_RARRAY_FLOAT(self, t):
+        # r'(\+|\-)?(\d+(\.\d+)?[eE](\+|\-)?\d+|\d+\.\d+)'
+        r'(\+|\-)?(\d(\_?\d)*(\.\d(\_?\d)*)?[eE](\+|\-)?\d(\_?\d)*|\d(\_?\d)*\.\d(\_?\d)*)'
+        t.value = float(t.value)
+        return t
+
+    def t_RARRAY_INF(self, t):
+        r'(\+|\-)?inf'
+        if t.value[0] == "-":
+            t.value = -math.inf
+        else:
+            t.value = math.inf
+        t.type = "FLOAT"
+        return t
+
+    def t_RARRAY_NAN(self, t):
+        r'(\+|\-)?nan'
+        t.value = math.nan
+        t.type = "FLOAT"
+        return t
+
+    def t_RARRAY_INTHEX(self, t):
+        r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
+        t.value = int(t.value, 16)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        return t
+
+    def t_RARRAY_INTOCT(self, t):
+        r'0o[0-7](_?[0-7])*'
+        t.value = int(t.value, 8)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        return t
+
+    def t_RARRAY_INTBIN(self, t):
+        r'0b[01](_?[01])*'
+        t.value = int(t.value, 2)
+        flag = isValidInt(t.value)
+        t.type = "INT"
+        return t
+
+    def t_RARRAY_INT(self, t):
+        r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
+        t.value = int(t.value)
+        flag = isValidInt(t.value)
+        return t
+
+    def t_RARRAY_BOOL(self, t):
+        r'\b(true|false)\b'
+        t.value = parse_bool(t.value)
+        return t
+
+    def t_RARRAY_COMMA(self, t):
+        r'\,'
+        return t
+
+    def t_RARRAY_OPENPR(self, t):
+        r'\['
+        t.lexer.push_state('RARRAY')
+        return t
+
+    def t_RARRAY_CLOSEPR(self, t):
+        r'\]'
+        t.lexer.pop_state()
+        return t
+
+    def t_RARRAY_OPENCHV(self, t):
+        r'\{'
+        t.lexer.push_state('RDICT')
+        return t
+
+    def t_RARRAY_CLOSECHV(self, t):
+        r'\}'
+        t.lexer.pop_state()
+        return t
+
+    # RDICT
+    def t_RDICT_KEY(self, t):
+        # r'[\w\-]+|\"[^\"\n]*\"|\'[^\'\n]*\''
+        r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
+        t.value = treat_keys(t.value)
+        t.lexer.push_state('RVALUE')
+        return t
+
+    def t_RDICT_COMMA(self, t):
+        r'\,'
+        return t
+
+    def t_RDICT_OPENPR(self, t):
+        r'\['
+        t.lexer.push_state('RARRAY')
+        return t
+
+    def t_RDICT_CLOSEPR(self, t):
+        r'\]'
+        t.lexer.pop_state()
+        return t
+
+    def t_RDICT_OPENCHV(self, t):
+        r'\{'
+        t.lexer.push_state('RDICT')
+        return t
+
+    def t_RDICT_CLOSECHV(self, t):
+        r'\}'
+        t.lexer.pop_state()
+        return t
+
+    def t_eof(self, t):
+        if not t.lexer.end:
+            t.type = 'EOF'
+            t.lexer.end = True
+            return t
+
+
+    t_ANY_ignore = '\t '
+
+    def t_ANY_error(self, t):
+        coluna = find_column(t)
+        line = getline(t)
+        print(f"Erro de parsing do tokenizer: sintaxe inválida na linha {t.lineno}, coluna {coluna}.")
+        print(f"{line.rstrip()}")
+        print(" " * (coluna - 1) + "^")
+        print("Execução interrompida!")
+        exit(1)
+
+    def t_ANY_COMMENT(self, t):
+        r'\#.*'
+
+    def t_ANY_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+
+# Fim da gramática
+
+    def build(self, **kwargs):
+        self.lexer = lex.lex(module=self, **kwargs)
+        self.lexer.end = False
+
+    # Para testar o lexer
+    def test(self, data):
+        self.lexer.end = False
+        self.lexer.input(data)
+
+        for tok in self.lexer:
+            print(f'{tok}: {self.lexer.current_state()}')
+        
+
+## Debugging code to see tokens of a certain file
+
+# m = MyLexer()
+# m.build()
+
+# filename = '/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml'
+# with open(filename) as f:
+#     data = f.read()
+# m.test(data)

@@ -213,18 +213,20 @@ import sys
 import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from grammar import parser
+from grammar import Parser
+
+myparser = Parser()
 
 class Tests_{path.split("/")[2]}(unittest.TestCase):
 '''
         for i2,(f1,f2) in enumerate(list):
                 file += f'''
     def test_{i2:03d}(self):
+        myparser.build()
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', '{f1}'))) as f_test:
-            parser.parse(f_test.read())
+            test = myparser.parser.parse(f_test.read())
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.', '{f2}'))) as f_result:
             correct = json.load(f_result)
-        test = parser.result
         self.assertEqual(test,correct)
         '''
         f.write(file)
