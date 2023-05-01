@@ -240,7 +240,7 @@ class MyLexer:
     def t_RVALUE_INTHEX(self, t):
         r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
         t.value = int(t.value, 16)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -248,7 +248,7 @@ class MyLexer:
     def t_RVALUE_INTOCT(self, t):
         r'0o[0-7](_?[0-7])*'
         t.value = int(t.value, 8)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -256,7 +256,7 @@ class MyLexer:
     def t_RVALUE_INTBIN(self, t):
         r'0b[01](_?[01])*'
         t.value = int(t.value, 2)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -264,7 +264,7 @@ class MyLexer:
     def t_RVALUE_INT(self, t):
         r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
         t.value = int(t.value)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.lexer.pop_state()
         return t
 
@@ -363,28 +363,28 @@ class MyLexer:
     def t_RARRAY_INTHEX(self, t):
         r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
         t.value = int(t.value, 16)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         return t
 
     def t_RARRAY_INTOCT(self, t):
         r'0o[0-7](_?[0-7])*'
         t.value = int(t.value, 8)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         return t
 
     def t_RARRAY_INTBIN(self, t):
         r'0b[01](_?[01])*'
         t.value = int(t.value, 2)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         t.type = "INT"
         return t
 
     def t_RARRAY_INT(self, t):
         r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
         t.value = int(t.value)
-        flag = isValidInt(t.value)
+        # flag = isValidInt(t.value)
         return t
 
     def t_RARRAY_BOOL(self, t):
