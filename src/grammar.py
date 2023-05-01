@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 # from tokenizer import tokens
-from tokenizer import MyLexer
+from tokenizer import Lexer
 from myExceptions import *
 
 
@@ -76,7 +76,7 @@ def merge_tables(dictionaries_list):
     
 class Parser:
 
-    tokens = MyLexer.tokens
+    tokens = Lexer.tokens
 
     def p_final(self, p):
         '''
@@ -306,7 +306,7 @@ class Parser:
 
 
     def build(self, **kwargs):
-        self.lexer = MyLexer()
+        self.lexer = Lexer()
         self.lexer.build()
         self.parser = yacc.yacc(module=self, **kwargs)
 

@@ -76,7 +76,7 @@ def isValidInt(inteiro): #! Tenho de ver melhor como vou usar isto
 def parse_bool(text):
     return True if text == 'true' else False
     
-class MyLexer:
+class Lexer:
     
     tokens = [
         # 'COMMENT',
@@ -490,7 +490,7 @@ class MyLexer:
 
 ## Debugging code to see tokens of a certain file
 
-# m = MyLexer()
+# m = Lexer()
 # m.build()
 
 # filename = '/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml'
