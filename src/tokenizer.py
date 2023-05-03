@@ -1,4 +1,5 @@
 import ply.lex as lex
+import sys
 import re
 import math
 from dateutil.parser import parse as parseDateTime
@@ -488,12 +489,16 @@ class Lexer:
             print(f'{tok}: {self.lexer.current_state()}')
         
 
-## Debugging code to see tokens of a certain file
 
-# m = Lexer()
-# m.build()
 
-# filename = '/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml'
-# with open(filename) as f:
-#     data = f.read()
-# m.test(data)
+# Codigo executado caso o tokenizer seja chamado diretamente (principalmente para DEBUG)
+# python3 tokenizer.py [nome do ficheiro de input]
+if __name__ == '__main__':
+    m = Lexer()
+    m.build()
+    in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml"
+    if len(sys.argv) > 1:
+        in_file = sys.argv[1]
+    with open(in_file) as f:
+        data = f.read()
+    m.test(data)
