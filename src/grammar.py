@@ -80,21 +80,14 @@ class Parser:
 
     def p_final(self, p):
         '''
-        final : file EOF
-              | file
+        toml : toml EOF
         '''
         p[0] = p[1]
-        # p.parser.result = p[1]
 
     def p_0(self, p):
-        'file : newlines toml'
+        'toml : newlines toml'
         p[0] = p[2]
-        # p.parser.result = p[2]
 
-    def p_1(self, p):
-        'file : toml'
-        p[0] = p[1]
-        # p.parser.result = p[1]
 
     def p_2(self, p):
         'toml : kvaluepairs tables'
