@@ -8,21 +8,20 @@ from datetime import datetime
 
 def find_column(token):
     '''
-    Retorna o número da coluna em que o token se encontra na linha.
+    Retorna o número da coluna em que o token se encontra na sua linha.
     '''
     text = token.lexer.lexdata
     line_start = text.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
-def getline(token, i = None) -> str:
+def getline(token) -> str:
     '''
-    Retorna a linha do token dado como argumento, podendo ser especificado um índice, opcionalmente.
+    Retorna a string da linha do token dado como argumento.
     '''
-    if not i:
-        i = token.lineno - 1
+    line = token.lineno - 1
     text = token.lexer.lexdata
     lines = text.split('\n')
-    return lines[i]
+    return lines[line]
 
 def rem_quotes(text):
     return re.sub(r'^(\"\"\"|\'\'\'|\"|\')((?:.|\n)*)\1$', r'\2', text)
@@ -68,11 +67,23 @@ def remove_leb(text):
     regex = re.compile(r'\\[\s\n]+')
     return re.sub(regex,'', text)
 
-def isValidInt(inteiro): #! Tenho de ver melhor como vou usar isto
-    if inteiro.bit_length() > 63:
-        print(f"Não é possível serializar BigInt: {inteiro}!!")
-        return False
-    return True
+def isValidInt(token):
+    num = token.value
+    MIN_INT = -2**63
+    MAX_INT = 2**63 - 1
+    if not MIN_INT <= num <= MAX_INT:
+        col = find_column(token)
+        line = getline(token).rstrip()
+
+        # Mensagem de erro
+        print("O número inteiro fornecido não pode ser representado sem perda de precisão.")
+        # print("Por favor, forneça um valor inteiro de 64 bits com sinal válido, entre -9.223.372.036.854.775.808 e 9.223.372.036.854.775.807.")
+        print(f"O inteiro inválido foi detetado na linha {token.lineno}, coluna {col}.")
+        print(f"""\
+  {line}
+  {" " * (col-1)}^\
+""")
+        exit(1)
 
 def parse_bool(text):
     return True if text == 'true' else False
@@ -241,7 +252,7 @@ class Lexer:
     def t_RVALUE_INTHEX(self, t):
         r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
         t.value = int(t.value, 16)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -249,7 +260,7 @@ class Lexer:
     def t_RVALUE_INTOCT(self, t):
         r'0o[0-7](_?[0-7])*'
         t.value = int(t.value, 8)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -257,7 +268,7 @@ class Lexer:
     def t_RVALUE_INTBIN(self, t):
         r'0b[01](_?[01])*'
         t.value = int(t.value, 2)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         t.lexer.pop_state()
         return t
@@ -265,7 +276,7 @@ class Lexer:
     def t_RVALUE_INT(self, t):
         r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
         t.value = int(t.value)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.lexer.pop_state()
         return t
 
@@ -364,28 +375,28 @@ class Lexer:
     def t_RARRAY_INTHEX(self, t):
         r'0x[0-9a-fA-F](\_?[0-9a-fA-F])*'
         t.value = int(t.value, 16)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         return t
 
     def t_RARRAY_INTOCT(self, t):
         r'0o[0-7](_?[0-7])*'
         t.value = int(t.value, 8)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         return t
 
     def t_RARRAY_INTBIN(self, t):
         r'0b[01](_?[01])*'
         t.value = int(t.value, 2)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         t.type = "INT"
         return t
 
     def t_RARRAY_INT(self, t):
         r'(\+|\-)?(0|[1-9](?:\_?\d)*)' # não pode começar em 0
         t.value = int(t.value)
-        # flag = isValidInt(t.value)
+        isValidInt(t)
         return t
 
     def t_RARRAY_BOOL(self, t):
@@ -496,7 +507,7 @@ class Lexer:
 if __name__ == '__main__':
     m = Lexer()
     m.build()
-    in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml"
+    in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml" #! Mudar estas paths para uma path relativa à diretoria do projeto
     if len(sys.argv) > 1:
         in_file = sys.argv[1]
     with open(in_file) as f:
