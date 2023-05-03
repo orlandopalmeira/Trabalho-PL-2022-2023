@@ -114,7 +114,7 @@ class parsingError(myException):
         lineno = None
         lexpos = None
         if token:
-            self.value = "'"+token.value+"'" if token.value != "\n" else r"'\n' (newline)" # Esta condição serve para o caso do token ser um newLine para que não seja printado uma nova linha na mensagem de erro.
+            self.value = "'" + str(token.value) + "'" if token.value != "\n" else r"'\n' (newline)" # Esta condição serve para o caso do token ser um newLine para que não seja printado uma nova linha na mensagem de erro.
             lineno = token.lineno
             lexpos = token.lexpos
         super().__init__(message, lineno=lineno, lexpos=lexpos)

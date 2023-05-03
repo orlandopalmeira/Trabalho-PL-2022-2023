@@ -261,15 +261,22 @@ class Parser:
         p[0] = p[2]
 
     def p_27(self, p):
-        'arraycontent : value COMMA arraycontent'
-        p[0] = [p[1]] + p[3]
+        '''
+        arraycontent : arraycontent arrelem
+        '''
+        p[0] = p[1] + [p[2]]
 
+    def p_277(self, p):
+        "arraycontent : arrelem"
+        p[0] = [p[1]]
+
+    #! Talvez até se possa reutilizar o simbolo "value" (para "arrelem"), mas n quis estar a fazer essa confusao.
     def p_28(self, p):
         '''
-        arraycontent : value
-                     | value COMMA
+        arrelem : value COMMA
+                | value
         '''
-        p[0] = [p[1]]
+        p[0] = p[1]
 
     def p_29(self, p):
         'dictionary : OPENCHV CLOSECHV'

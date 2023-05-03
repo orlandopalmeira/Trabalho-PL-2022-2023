@@ -9,7 +9,7 @@ from myExceptions import *
 # Construção do parser
 myparser = Parser()
 myparser.build()
-# parser.build(debug=True) # Se quisermos debug=True, o parser irá gerar o ficheiro parser.out
+# myparser.build(debug=True) # Se quisermos debug=True, o parser irá gerar o ficheiro parser.out
 
 in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml"
 out_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/result.json"
