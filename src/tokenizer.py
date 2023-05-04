@@ -127,7 +127,7 @@ class Lexer:
     def t_KEY(self, t):
         r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
         t.value = treat_keys(t.value)
-        t.lexer.push_state('RVALUE')
+        # t.lexer.push_state('RVALUE')
         return t
 
     def t_DOT(self, t):
@@ -142,6 +142,11 @@ class Lexer:
     def t_CLOSEPR(self, t):
         r'\]'
         t.lexer.pop_state()
+        return t
+
+    def t_EQUAL(self, t):
+        r'='
+        t.lexer.push_state('RVALUE')
         return t
 
     # RTABLE
@@ -171,10 +176,10 @@ class Lexer:
 
 
     # RVALUE
-    def t_RVALUE_DOT(self, t):
-        r'\.'
-        t.lexer.pop_state()
-        return t
+    # def t_RVALUE_DOT(self, t):
+    #     r'\.'
+    #     t.lexer.pop_state()
+    #     return t
 
     def t_RVALUE_OFFSETDATETIME(self, t):
         r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
@@ -200,9 +205,9 @@ class Lexer:
         t.value = str(parseDateTime(t.value).time())
         return t
 
-    def t_RVALUE_EQUAL(self, t):
-        r'='
-        return t
+    # def t_RVALUE_EQUAL(self, t):
+    #     r'='
+    #     return t
 
     # Basic Multi-line
     def t_RVALUE_BMLSTRING(self, t):
@@ -432,6 +437,15 @@ class Lexer:
     def t_RDICT_KEY(self, t):
         r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
         t.value = treat_keys(t.value)
+        # t.lexer.push_state('RVALUE')
+        return t
+    
+    def t_RDICT_DOT(self, t):
+        r'\.'
+        return t
+    
+    def t_RDICT_EQUAL(self, t):
+        r'='
         t.lexer.push_state('RVALUE')
         return t
 
