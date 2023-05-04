@@ -99,15 +99,25 @@ class Lexer:
         'BOOL',
         'DATETIME',
         'TABLE', # object
-        'OPENPR', # parenteses rectos
-        'CLOSEPR',
-        'OPENCHV', # chavetas
-        'CLOSECHV',
-        'DOT',
-        'EQUAL',
-        'COMMA',
+        # 'OPENPR', # parenteses rectos
+        # 'CLOSEPR',
+        # 'OPENCHV', # chavetas
+        # 'CLOSECHV',
+        # 'DOT',
+        # 'EQUAL',
+        # 'COMMA',
         'NEWLINE',
         'EOF',
+    ]
+
+    literals = [
+        '[',
+        ']',
+        '{',
+        '}',
+        '.',
+        '=',
+        ','
     ]
 
     states = [('RVALUE','exclusive'),
@@ -126,24 +136,28 @@ class Lexer:
         t.value = treat_keys(t.value)
         return t
 
-    def t_DOT(self, t):
+    def t_dot(self, t):
         r'\.'
+        t.type = '.'
         return t
 
-    def t_OPENPR(self, t):
+    def t_openpr(self, t):
         r'\['
+        t.type = '['
         t.lexer.push_state('RTABLE')
         return t
 
-    def t_EQUAL(self, t):
+    def t_equal(self, t):
         r'='
+        t.type = '='
         t.lexer.push_state('RVALUE')
         return t
 
 
     # RTABLE
-    def t_RTABLE_OPENPR(self, t):
+    def t_RTABLE_openpr(self, t):
         r'\['
+        t.type = '['
         t.lexer.push_state('RTABLE')
         return t
 
@@ -152,12 +166,14 @@ class Lexer:
         t.value = treat_keys(t.value)
         return t
 
-    def t_RTABLE_DOT(self, t):
+    def t_RTABLE_dot(self, t):
         r'\.'
+        t.type = '.'
         return t
 
-    def t_RTABLE_CLOSEPR(self, t):
+    def t_RTABLE_closepr(self, t):
         r'\]'
+        t.type = ']'
         t.lexer.pop_state()
         return t
 
@@ -278,25 +294,29 @@ class Lexer:
         t.lexer.pop_state()
         return t
 
-    def t_RVALUE_OPENPR(self, t):
+    def t_RVALUE_openpr(self, t):
         r'\['
+        t.type = '['
         t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
         t.lexer.push_state('RARRAY')
         return t
 
-    def t_RVALUE_CLOSEPR(self, t):
+    def t_RVALUE_closepr(self, t):
         r'\]'
+        t.type = ']'
         t.lexer.pop_state()
         return t
 
-    def t_RVALUE_OPENCHV(self, t):
+    def t_RVALUE_openchv(self, t):
         r'\{'
+        t.type = '{'
         t.lexer.pop_state() # não vamos ler um valor, mas sim uma estrutura
         t.lexer.push_state('RDICT')
         return t
 
-    def t_RVALUE_CLOSECHV(self, t):
+    def t_RVALUE_closechv(self, t):
         r'\}'
+        t.type = '}'
         t.lexer.pop_state()
         return t
 
@@ -400,27 +420,32 @@ class Lexer:
         t.value = parse_bool(t.value)
         return t
 
-    def t_RARRAY_COMMA(self, t):
+    def t_RARRAY_comma(self, t):
         r'\,'
+        t.type = ','
         return t
 
-    def t_RARRAY_OPENPR(self, t):
+    def t_RARRAY_openpr(self, t):
         r'\['
+        t.type = '['
         t.lexer.push_state('RARRAY')
         return t
 
-    def t_RARRAY_CLOSEPR(self, t):
+    def t_RARRAY_closepr(self, t):
         r'\]'
+        t.type = ']'
         t.lexer.pop_state()
         return t
 
-    def t_RARRAY_OPENCHV(self, t):
+    def t_RARRAY_openchv(self, t):
         r'\{'
+        t.type = '{'
         t.lexer.push_state('RDICT')
         return t
 
-    def t_RARRAY_CLOSECHV(self, t):
+    def t_RARRAY_closechv(self, t):
         r'\}'
+        t.type = '}'
         t.lexer.pop_state()
         return t
 
@@ -430,36 +455,43 @@ class Lexer:
         t.value = treat_keys(t.value)
         return t
     
-    def t_RDICT_DOT(self, t):
+    def t_RDICT_dot(self, t):
         r'\.'
+        t.type = '.'
         return t
     
-    def t_RDICT_EQUAL(self, t):
+    def t_RDICT_equal(self, t):
         r'='
+        t.type = '='
         t.lexer.push_state('RVALUE')
         return t
 
-    def t_RDICT_COMMA(self, t):
+    def t_RDICT_comma(self, t):
         r'\,'
+        t.type = ','
         return t
 
-    def t_RDICT_OPENPR(self, t):
+    def t_RDICT_openpr(self, t):
         r'\['
+        t.type = '['
         t.lexer.push_state('RARRAY')
         return t
 
-    def t_RDICT_CLOSEPR(self, t):
+    def t_RDICT_closepr(self, t):
         r'\]'
+        t.type = ']'
         t.lexer.pop_state()
         return t
 
-    def t_RDICT_OPENCHV(self, t):
+    def t_RDICT_openchv(self, t):
         r'\{'
+        t.type = '{'
         t.lexer.push_state('RDICT')
         return t
     
-    def t_RDICT_CLOSECHV(self, t):
+    def t_RDICT_closechv(self, t):
         r'\}'
+        t.type = '}'
         t.lexer.pop_state()
         return t
     

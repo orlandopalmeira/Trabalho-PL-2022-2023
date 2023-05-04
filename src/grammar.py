@@ -125,13 +125,13 @@ class Parser:
         p[0] = p[1]
 
     def p_5(self, p):
-        'kvaluepair : key EQUAL value'
+        'kvaluepair : key "=" value'
         p[0] = calcObject(p[1],p[3])
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
 
     def p_6(self, p):
-        'key : KEY DOT key'
+        'key : KEY "." key'
         p[0] = [p[1]] + p[3]
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
@@ -169,34 +169,34 @@ class Parser:
 
 
     def p_11(self, p):
-        'normaltable : OPENPR tablename CLOSEPR newlines kvaluepairs'
+        'normaltable : "[" tablename "]" newlines kvaluepairs'
         p[0] = calcObject(p[2],p[5])
         p.set_lineno(0, p.lineno(2))
 
     ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
     def p_111(self, p):
-        '''normaltable : OPENPR tablename CLOSEPR newlines
-                       | OPENPR tablename CLOSEPR EOF
+        '''normaltable : "[" tablename "]" newlines
+                       | "[" tablename "]" EOF
         '''
         p[0] = calcObject(p[2],{})
         p.set_lineno(0, p.lineno(2))
 
     def p_12(self, p):
-        'arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines kvaluepairs'
+        'arraytable : "[" "[" tablename "]" "]" newlines kvaluepairs'
         p[0] = calcObjectArrayTable(p[3],p[7])
         p.set_lineno(0, p.lineno(3))
 
     ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
     def p_122(self, p):
         '''
-        arraytable : OPENPR OPENPR tablename CLOSEPR CLOSEPR newlines
-                   | OPENPR OPENPR tablename CLOSEPR CLOSEPR EOF
+        arraytable : "[" "[" tablename "]" "]" newlines
+                   | "[" "[" tablename "]" "]" EOF
         '''
         p[0] = calcObjectArrayTable(p[3],{})
         p.set_lineno(0, p.lineno(3))
 
     def p_13(self, p):
-        'tablename : TABLE DOT tablename'
+        'tablename : TABLE "." tablename'
         p[0] = [p[1]] + p[3]
         p.set_lineno(0, p.lineno(1))
 
@@ -246,11 +246,11 @@ class Parser:
         p[0] = p[1]
 
     def p_25(self, p):
-        'array : OPENPR CLOSEPR'
+        'array : "[" "]"'
         p[0] = []
 
     def p_26(self, p):
-        'array : OPENPR arraycontent CLOSEPR'
+        'array : "[" arraycontent "]"'
         p[0] = p[2]
 
     def p_27(self, p):
@@ -266,21 +266,21 @@ class Parser:
     #! Talvez até se possa reutilizar o simbolo "value" (para "arrelem"), mas n quis estar a fazer essa confusao.
     def p_28(self, p):
         '''
-        arrelem : value COMMA
+        arrelem : value ","
                 | value
         '''
         p[0] = p[1]
 
     def p_29(self, p):
-        'dictionary : OPENCHV CLOSECHV'
+        'dictionary : "{" "}"'
         p[0] = dict()
 
     def p_30(self, p):
-        'dictionary : OPENCHV dictcontent CLOSECHV'
+        'dictionary : "{" dictcontent "}"'
         p[0] = p[2]
 
     def p_31(self, p):
-        'dictcontent : dictcontent COMMA kvaluepair'
+        'dictcontent : dictcontent "," kvaluepair'
         try:
             p[0] = merge_dictionaries([p[1], p[3]])
         except myException as e:
