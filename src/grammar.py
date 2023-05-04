@@ -222,20 +222,20 @@ class Parser:
         p[0] = p[1]
 
     def p_19(self, p):
-        'value : OFFSETDATETIME'
+        'value : DATETIME'
         p[0] = p[1]
 
-    def p_20(self, p):
-        'value : LOCALDATETIME'
-        p[0] = p[1]
+    # def p_20(self, p):
+    #     'value : LOCALDATETIME'
+    #     p[0] = p[1]
 
-    def p_21(self, p):
-        'value : LOCALDATE'
-        p[0] = p[1]
+    # def p_21(self, p):
+    #     'value : LOCALDATE'
+    #     p[0] = p[1]
 
-    def p_22(self, p):
-        'value : LOCALTIME'
-        p[0] = p[1]
+    # def p_22(self, p):
+    #     'value : LOCALTIME'
+    #     p[0] = p[1]
 
     def p_23(self, p):
         'value : array'

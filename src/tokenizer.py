@@ -97,10 +97,7 @@ class Lexer:
         'INT',
         'FLOAT',
         'BOOL',
-        'OFFSETDATETIME',
-        'LOCALDATETIME',
-        'LOCALDATE',
-        'LOCALTIME',
+        'DATETIME',
         'TABLE', # object
         'OPENPR', # parenteses rectos
         'CLOSEPR',
@@ -175,24 +172,28 @@ class Lexer:
         r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
         t.value = str(parseDateTime(t.value))
         t.lexer.pop_state()
+        t.type = 'DATETIME'
         return t
 
     def t_RVALUE_LOCALDATETIME(self, t):
         r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
         t.value = str(parseDateTime(t.value))
         t.lexer.pop_state()
+        t.type = 'DATETIME'
         return t
 
     def t_RVALUE_LOCALDATE(self, t):
         r'\d{4}\-\d{2}\-\d{2}'
         t.lexer.pop_state()
         t.value = str(parseDateTime(t.value).date())
+        t.type = 'DATETIME'
         return t
 
     def t_RVALUE_LOCALTIME(self, t):
         r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
         t.lexer.pop_state()
         t.value = str(parseDateTime(t.value).time())
+        t.type = 'DATETIME'
         return t
 
     # Basic Multi-line
@@ -309,21 +310,25 @@ class Lexer:
     def t_RARRAY_OFFSETDATETIME(self, t):
         r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d+\.\d+[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}[\-\+]\d{2}\:\d{2}|\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?[Zz]'
         t.value = str(parseDateTime(t.value))
+        t.type = 'DATETIME'
         return t
 
     def t_RARRAY_LOCALDATETIME(self, t):
         r'\d{4}\-\d{2}\-\d{2}[Tt ]\d{2}\:\d{2}\:\d{2}(\.\d+)?'
         t.value = str(parseDateTime(t.value))
+        t.type = 'DATETIME'
         return t
 
     def t_RARRAY_LOCALDATE(self, t):
         r'\d{4}\-\d{2}\-\d{2}'
         t.value = str(parseDateTime(t.value).date())
+        t.type = 'DATETIME'
         return t
 
     def t_RARRAY_LOCALTIME(self, t):
         r'\d{2}\:\d{2}\:\d{2}(\.\d+)?'
         t.value = str(parseDateTime(t.value).time())
+        t.type = 'DATETIME'
         return t
 
     def t_RARRAY_BMLSTRING(self, t):
