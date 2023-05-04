@@ -452,11 +452,17 @@ class Lexer:
         r'\{'
         t.lexer.push_state('RDICT')
         return t
-
+    
     def t_RDICT_CLOSECHV(self, t):
         r'\}'
         t.lexer.pop_state()
         return t
+    
+    def t_RDICT_NEWLINE(self, t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+        return t
+
 
     def t_eof(self, t):
         # Uma vez que o lexer chama t_eof, sempre que é retornado um token na sua própria função, desta maneira assegura que só passa por ela uma vez.
