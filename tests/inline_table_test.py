@@ -8,7 +8,7 @@ from grammar import Parser
 
 myparser = Parser()
 
-class Tests_inline-table(unittest.TestCase):
+class Tests_inline_table(unittest.TestCase):
 
     def test_000(self):
         myparser.build()
