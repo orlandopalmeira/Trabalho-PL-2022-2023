@@ -79,15 +79,12 @@ class Parser:
     tokens = Lexer.tokens
 
     def p_toml_eof(self, p):
-        '''
-        toml : toml EOF
-        '''
+        'toml : toml EOF'
         p[0] = p[1]
 
     def p_newlines_toml(self, p):
         'toml : newlines toml'
         p[0] = p[2]
-
 
     def p_toml_kvps_tables(self, p):
         'toml : kvaluepairs tables'
@@ -101,9 +98,7 @@ class Parser:
         p[0] = p[1]
 
     def p_empty_file(self, p):
-        '''
-        toml : 
-        '''
+        'toml : '
         p[0] = {}
 
     # Utiliza-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
@@ -173,7 +168,6 @@ class Parser:
                | normaltable
         '''
         p[0] = p[1]
-
 
     def p_normaltable(self, p):
         'normaltable : "[" tablename "]" newlines kvaluepairs'
