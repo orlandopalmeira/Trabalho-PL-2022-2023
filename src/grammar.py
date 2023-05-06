@@ -90,14 +90,14 @@ class Parser:
         'toml : kvaluepairs tables'
         p[0] = merge_dictionaries([p[1], p[2]])
 
-    def p_kvps_or_tables(self, p):
+    def p_toml_kvps_or_tables(self, p):
         '''
         toml : kvaluepairs
              | tables
         '''
         p[0] = p[1]
 
-    def p_empty_file(self, p):
+    def p_empty_toml(self, p):
         'toml : '
         p[0] = {}
 
