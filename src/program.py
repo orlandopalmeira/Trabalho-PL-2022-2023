@@ -3,7 +3,6 @@ import json
 from grammar import Parser
 from myExceptions import *
 
-### Main
 # python3 program.py [nome do ficheiro de input] [nome do ficheiro output]
 
 # Construção do parser

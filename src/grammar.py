@@ -121,11 +121,13 @@ class Parser:
             raise e
 
     def p_single_kvaluepairs(self, p): 
-        '''kvaluepairs : kvaluepair newlines
-                       | kvaluepair EOF
+        '''
+        kvaluepairs : kvaluepair newlines
+                    | kvaluepair EOF
         '''
         p[0] = p[1]
 
+    # O kvaluepair não é seguido de newline ou EOF uma vez que ele é utilizado nas inline tables(dicionários) e estes não têm essa restrição.
     def p_kvaluepair(self, p):
         'kvaluepair : key "=" value'
         p[0] = calcObject(p[1],p[3])
@@ -175,8 +177,9 @@ class Parser:
         p.set_lineno(0, p.lineno(2))
 
     def p_empty_normaltable(self, p):
-        '''normaltable : "[" tablename "]" newlines
-                       | "[" tablename "]" EOF
+        '''
+        normaltable : "[" tablename "]" newlines
+                    | "[" tablename "]" EOF
         '''
         p[0] = calcObject(p[2],{})
         p.set_lineno(0, p.lineno(2))
@@ -221,13 +224,11 @@ class Parser:
         p[0] = p[2]
 
     def p_arraycontent(self, p):
-        '''
-        arraycontent : arraycontent arrelem
-        '''
+        'arraycontent : arraycontent arrelem'
         p[0] = p[1] + [p[2]]
 
     def p_arraycontent_single(self, p):
-        "arraycontent : arrelem"
+        'arraycontent : arrelem'
         p[0] = [p[1]]
 
     def p_arrelem(self, p):
