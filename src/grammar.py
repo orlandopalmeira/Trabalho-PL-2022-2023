@@ -78,22 +78,22 @@ class Parser:
 
     tokens = Lexer.tokens
 
-    def p_final(self, p):
+    def p_toml_eof(self, p):
         '''
         toml : toml EOF
         '''
         p[0] = p[1]
 
-    def p_0(self, p):
+    def p_newlines_toml(self, p):
         'toml : newlines toml'
         p[0] = p[2]
 
 
-    def p_2(self, p):
+    def p_toml_kvps_tables(self, p):
         'toml : kvaluepairs tables'
         p[0] = merge_dictionaries([p[1], p[2]])
 
-    def p_233(self, p):
+    def p_kvps_or_tables(self, p):
         '''
         toml : kvaluepairs
              | tables
@@ -106,7 +106,14 @@ class Parser:
         '''
         p[0] = {}
 
-    def p_3(self, p):
+    # Utiliza-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
+    def p_newlines(self, p):
+        '''
+        newlines : NEWLINE newlines
+                 | NEWLINE
+        '''
+
+    def p_kvaluepairs(self, p):
         '''
         kvaluepairs : kvaluepairs kvaluepair newlines
                     | kvaluepairs kvaluepair EOF
@@ -118,31 +125,31 @@ class Parser:
             e.set_lexpos(p.lexpos(2))
             raise e
 
-    def p_45(self, p): 
+    def p_single_kvaluepairs(self, p): 
         '''kvaluepairs : kvaluepair newlines
                        | kvaluepair EOF
         '''
         p[0] = p[1]
 
-    def p_5(self, p):
+    def p_kvaluepair(self, p):
         'kvaluepair : key "=" value'
         p[0] = calcObject(p[1],p[3])
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
 
-    def p_6(self, p):
+    def p_key(self, p):
         'key : KEY "." key'
         p[0] = [p[1]] + p[3]
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
 
-    def p_7(self, p):
+    def p_single_key(self, p):
         'key : KEY'
         p[0] = [p[1]]
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
 
-    def p_8(self, p):
+    def p_tables_normalt(self, p):
         'tables : tables normaltable'
         # p[0] = merge_dictionaries([p[1],p[2]])
         try:
@@ -151,7 +158,7 @@ class Parser:
             exc.set_linetable(p.lineno(2))
             raise exc
 
-    def p_9(self, p):
+    def p_tables_arrayt(self, p):
         'tables : tables arraytable'
         # p[0] = merge_dictionaries([p[1],p[2]])
         try:
@@ -160,7 +167,7 @@ class Parser:
             exc.set_linetable(p.lineno(2))
             raise exc
 
-    def p_10(self, p):
+    def p_single_tables(self, p):
         '''
         tables : arraytable
                | normaltable
@@ -168,26 +175,24 @@ class Parser:
         p[0] = p[1]
 
 
-    def p_11(self, p):
+    def p_normaltable(self, p):
         'normaltable : "[" tablename "]" newlines kvaluepairs'
         p[0] = calcObject(p[2],p[5])
         p.set_lineno(0, p.lineno(2))
 
-    ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
-    def p_111(self, p):
+    def p_empty_normaltable(self, p):
         '''normaltable : "[" tablename "]" newlines
                        | "[" tablename "]" EOF
         '''
         p[0] = calcObject(p[2],{})
         p.set_lineno(0, p.lineno(2))
 
-    def p_12(self, p):
+    def p_arraytable(self, p):
         'arraytable : "[" "[" tablename "]" "]" newlines kvaluepairs'
         p[0] = calcObjectArrayTable(p[3],p[7])
         p.set_lineno(0, p.lineno(3))
 
-    ### Acrescentei isto por causa dos casos em que só aparece o tablename sem newline, no fim do ficheiro (old_comment)
-    def p_122(self, p):
+    def p_empty_arraytable(self, p):
         '''
         arraytable : "[" "[" tablename "]" "]" newlines
                    | "[" "[" tablename "]" "]" EOF
@@ -195,91 +200,58 @@ class Parser:
         p[0] = calcObjectArrayTable(p[3],{})
         p.set_lineno(0, p.lineno(3))
 
-    def p_13(self, p):
+    def p_tablename(self, p):
         'tablename : TABLE "." tablename'
         p[0] = [p[1]] + p[3]
         p.set_lineno(0, p.lineno(1))
 
-    def p_14(self, p):
+    def p_single_tablename(self, p):
         'tablename : TABLE'
         p[0] = [p[1]]
         p.set_lineno(0, p.lineno(1))
 
-    def p_15(self, p):
-        'value : INT'
-        p[0] = p[1]
-
-    def p_16(self, p):
-        'value : FLOAT'
-        p[0] = p[1]
-
-    def p_17(self, p):
-        'value : STRING'
-        p[0] = p[1]
-
-    def p_18(self, p):
-        'value : BOOL'
-        p[0] = p[1]
-
-    def p_19(self, p):
-        'value : DATETIME'
-        p[0] = p[1]
-
-    # def p_20(self, p):
-    #     'value : LOCALDATETIME'
-    #     p[0] = p[1]
-
-    # def p_21(self, p):
-    #     'value : LOCALDATE'
-    #     p[0] = p[1]
-
-    # def p_22(self, p):
-    #     'value : LOCALTIME'
-    #     p[0] = p[1]
-
-    def p_23(self, p):
+    def p_value_array(self, p):
         'value : array'
         p[0] = p[1]
 
-    def p_24(self, p):
+    def p_value_dictionary(self, p):
         'value : dictionary'
         p[0] = p[1]
 
-    def p_25(self, p):
+    def p_empty_array(self, p):
         'array : "[" "]"'
         p[0] = []
 
-    def p_26(self, p):
+    def p_array(self, p):
         'array : "[" arraycontent "]"'
         p[0] = p[2]
 
-    def p_27(self, p):
+    def p_arraycontent(self, p):
         '''
         arraycontent : arraycontent arrelem
         '''
         p[0] = p[1] + [p[2]]
 
-    def p_277(self, p):
+    def p_arraycontent_single(self, p):
         "arraycontent : arrelem"
         p[0] = [p[1]]
 
-    #! Talvez até se possa reutilizar o simbolo "value" (para "arrelem"), mas n quis estar a fazer essa confusao.
-    def p_28(self, p):
+    def p_arrelem(self, p):
         '''
         arrelem : value ","
                 | value
         '''
         p[0] = p[1]
 
-    def p_29(self, p):
+    def p_empty_dictionary(self, p):
         'dictionary : "{" "}"'
         p[0] = dict()
 
-    def p_30(self, p):
+    def p_dictionary(self, p):
         'dictionary : "{" dictcontent "}"'
         p[0] = p[2]
 
-    def p_31(self, p):
+    def p_dictcontent(self, p):
         'dictcontent : dictcontent "," kvaluepair'
         try:
             p[0] = merge_dictionaries([p[1], p[3]])
@@ -288,18 +260,31 @@ class Parser:
             e.set_lexpos(p.lexpos(3))
             raise e
 
-    def p_32(self, p):
+    def p_single_dictcontent(self, p):
         'dictcontent : kvaluepair'
         p[0] = p[1]
         p.set_lineno(0, p.lineno(1))
         p.set_lexpos(0, p.lexpos(1))
+    
+    def p_value_int(self, p):
+        'value : INT'
+        p[0] = p[1]
 
-    # Utiliza-se esta regra porque uma vez que no tokenizer os "comments" são ignorados, os NEWLINE nem sempre se encontram agrupados.
-    def p_newlines(self, p):
-        '''
-        newlines : NEWLINE newlines
-                 | NEWLINE
-        '''
+    def p_value_float(self, p):
+        'value : FLOAT'
+        p[0] = p[1]
+
+    def p_value_string(self, p):
+        'value : STRING'
+        p[0] = p[1]
+
+    def p_value_bool(self, p):
+        'value : BOOL'
+        p[0] = p[1]
+
+    def p_value_datetime(self, p):
+        'value : DATETIME'
+        p[0] = p[1]
 
     def p_error(self, p):
         raise parsingError(token = p)
