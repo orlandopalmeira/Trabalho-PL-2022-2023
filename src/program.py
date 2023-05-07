@@ -17,8 +17,8 @@ if len(sys.argv) > 2:
 if len(sys.argv) > 1:
     in_file = sys.argv[1]
 
-print(f"Ficheiro de input: {in_file}")
-print(f"Ficheiro de output: {out_file}")
+# print(f"Ficheiro de input: {in_file}")
+# print(f"Ficheiro de output: {out_file}")
 
 with open(in_file) as rf:
     text = rf.read()
@@ -36,4 +36,4 @@ else:
     print(json.dumps(result, indent=2, ensure_ascii=False)) # Printa na consola direto (DEBUG)
     with open(out_file, 'w') as wf:
         json.dump(result, wf, indent=2, ensure_ascii=False)
-    print(f"\nResultado escrito no ficheiro {out_file}.")
+    # print(f"\nResultado escrito no ficheiro {out_file}.")
