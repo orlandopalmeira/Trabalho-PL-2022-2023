@@ -91,21 +91,13 @@ def parse_bool(text):
 class Lexer:
     
     tokens = [
-        # 'COMMENT',
         'KEY',
         'STRING',
         'INT',
         'FLOAT',
         'BOOL',
         'DATETIME',
-        'TABLE', # object
-        # 'OPENPR', # parenteses rectos
-        # 'CLOSEPR',
-        # 'OPENCHV', # chavetas
-        # 'CLOSECHV',
-        # 'DOT',
-        # 'EQUAL',
-        # 'COMMA',
+        'TABLE', 
         'NEWLINE',
         'EOF',
     ]
@@ -449,6 +441,7 @@ class Lexer:
         t.lexer.pop_state()
         return t
 
+
     # RDICT
     def t_RDICT_KEY(self, t):
         r'[\w\-]+|\"(?:(?=(?P<t2>\\?))(?P=t2).)*?\"|\'.*?\''
@@ -508,7 +501,6 @@ class Lexer:
             t.lexer.end = True
             return t
 
-
     t_ANY_ignore = '\t '
 
     def t_ANY_error(self, t):
@@ -549,7 +541,7 @@ class Lexer:
 if __name__ == '__main__':
     m = Lexer()
     m.build()
-    in_file = "/home/pedro/PL/Trabalho-PL-2022-2023/src/examples/default.toml" #! Mudar estas paths para uma path relativa à diretoria do projeto
+    in_file = "examples/default.toml"
     if len(sys.argv) > 1:
         in_file = sys.argv[1]
     with open(in_file) as f:

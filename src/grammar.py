@@ -1,5 +1,4 @@
 import ply.yacc as yacc
-# from tokenizer import tokens
 from tokenizer import Lexer
 from myExceptions import *
 
@@ -293,5 +292,4 @@ class Parser:
     def input_data(self, data):
         result = self.parser.parse(data)
         return result
-
-    # parser = yacc.yacc(debug=True)
+    
