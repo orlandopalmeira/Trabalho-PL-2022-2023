@@ -221,21 +221,22 @@ class Parser:
     def p_array(self, p):
         'array : "[" arraycontent "]"'
         p[0] = p[2]
-
-    def p_arraycontent(self, p):
-        'arraycontent : arraycontent arrelem'
-        p[0] = p[1] + [p[2]]
-
-    def p_arraycontent_single(self, p):
-        'arraycontent : arrelem'
-        p[0] = [p[1]]
-
-    def p_arrelem(self, p):
-        '''
-        arrelem : value ","
-                | value
-        '''
+    
+    def p_arraycnt(self, p):
+        'arraycontent : list'
         p[0] = p[1]
+
+    def p_arraycnt_comma(self, p):
+        'arraycontent : list ","'
+        p[0] = p[1]
+
+    def p_list(self, p):
+        'list : list "," value'
+        p[0] = p[1] + [p[3]]
+
+    def p_list_single(self, p):
+        'list : value'
+        p[0] = [p[1]]
 
     def p_empty_dictionary(self, p):
         'dictionary : "{" "}"'
