@@ -49,9 +49,11 @@ for teste, esperado in correctos:
         result_json = json.load(esperado_f)
         print(f'{light(f"Resultado esperado em JSON: {esperado}")}\n{json.dumps(result_json, indent=2)}')
     input('Enter para continuar...')
+    print('\n'*100)
     
 print(light('------------ Mensagens de erro ------------'))
 
 for errado in errados:
     system(f'python3 ./src/program.py {errado}')
     input('Enter para continuar...')
+    print('\n'*100)
