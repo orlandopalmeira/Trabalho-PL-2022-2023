@@ -15,7 +15,7 @@
 
 </div>
 
-### Nota: X / 20
+### Nota: 17 / 20
 
 <h3><i>Keywords</i></h3>
 CG, Processamento de Linguagens, processamento de linguagens, uminho, miei, lei, engenharia informatica
